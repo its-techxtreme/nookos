@@ -1,0 +1,51 @@
+body {
+font-family: Helvetica, Arial, sans-serif;
+background-color: #c5d0c8;
+margin: 0;
+}
+
+#topbar {
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+ position: absolute;
+ width: 100%;
+padding: 8px 13px;
+box-sizing: border-box;
+}
+
+#welcome {
+border: 5px solid #2a2a2a;
+border-radius: 12px;
+width: 340px;
+padding: 16px;
+position: absolute;
+background-color: white;
+}
+
+#welcomeheader {
+cursor: grab;
+padding: 6px;
+margin: -8px -8px 10px -8px;
+background: #e8e4dc;
+}
+
+#welcomeclose {
+display: inline-block;
+width: 13px;
+height: 13px;
+background: #c45c4a;
+border-radius: 50%;
+cursor: pointer
+}
+
+h1 {
+font-size: 22px;
+margin: 8px 0
+}
+
+a { color: #3a4a42 }
+
+#topbar {
+padding: 8px 13px;
+}

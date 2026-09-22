@@ -104,4 +104,19 @@ box.addEventListener("input", function() {
   console.log(e)
  }
 })
+
+var an = document.getElementById("anime")
+document.querySelector("#animeclose").addEventListener("click", function() {
+ hideWin(an)
+})
+document.querySelector("#animeopen").addEventListener("click", function() {
+ showWin(an)
+})
+dragWin(an)
+an.addEventListener("mousedown", function() { bump(an) })
+
+var shot = document.getElementById("shot")
+document.getElementById("p1").onclick = function() { shot.src = "pics/1.png" }
+document.getElementById("p2").onclick = function() { shot.src = "pics/2.png" }
+document.getElementById("p3").onclick = function() { shot.src = "pics/3.png" }
  

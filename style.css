@@ -104,3 +104,45 @@ textarea {
 
 textarea { width: 100%; box-sizing: border-box }
 .ic { font-weight: 700 }
+
+.ic {
+ background: #f6e7c1;
+ border: 3px solid #2a2a2a;
+ border-radius: 10px;
+ padding: 13px 4px;
+ width: 68px;
+ box-sizing: border-box
+}
+#welcomeopen { background: #f6e7c1 }
+#scratchopen { background: #f2b8c6; top: 136px }
+
+#animeopen { background: #d8c4ef; top: 222px }
+
+#anime {
+border: 5px solid #2a2a2a;
+border-radius: 14px;
+width: 300px;
+padding: 11px;
+position: absolute;
+background-color: white;
+flex-direction: column
+}
+#animeheader {
+cursor: grab;
+padding: 6px;
+margin: -8px -8px 10px -8px;
+background: #e4d4f0
+}
+#animeclose {
+display: inline-block;
+width: 13px;
+height: 13px;
+background: #c45c4a;
+border-radius: 50%;
+cursor: pointer
+}
+#picks button {
+ margin-right: 8px;
+ font-family: Helvetica, Arial, sans-serif
+}
+#shot { max-width: 100%; max-height: 220px; margin-top: 10px }

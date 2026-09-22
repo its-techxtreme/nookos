@@ -1,26 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>NOOK OS</title>
+<title>ColorfulNOOK OS</title>
 <link rel="stylesheet" href="style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500&display=swap" rel="stylesheet">
 </head>
-<body style="background-color:#4df2ea;font-family:Helvetica, Arial, sans-serif;margin:0">
-<div id="topbar">
-<span id="brand">NOOK OS</span>
-<span id="timeElement">insert time here</span>
+<body>
+<div id="background"></div>
+<div id="taskbar">
+<p>ColorfulNOOK OS</p>
+<p class="time-now">Time</p>
 </div>
-<div class="ic" id="welcomeopen">welcome</div>
-<div class="ic" id="scratchopen">scratch</div>
-<div class="ic" id="animeopen">anime</div>
-<div id="welcome" style="top:80px;left:112px">
-<div id="welcomeheader">
-<span id="welcomeclose"></span>
- welcome
+<div class="app-icon" id="openWelcomeTab">
+<p>welcome</p>
 </div>
-<h1>NookOS</h1>
-<p>Hey I'm Athan. this is nookos, not much in here yetttt</p>
-<p>I ship weird tools cuz I had the idea & "chull" hehe. Then I log them onto My portfolio cuz why not obvv ! <a href="https://github.com/its-techxtreme">github</a></p>
+<div class="app-icon" id="openAnimeTab">
+<p>anime</p>
 </div>
+<div class="app-icon" id="open-notes-tab">
+<p>notes</p>
+</div>
+<div class="app-window" id="welcome" style="top:78px;left:210px">
+<div class="app-header" id="welcomeheader">
+<button class="close-button" id="closeWelcomeTab" type="button"></button>
+<p class="header-title">Welcome</p>
+</div>
+<p>Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room behind it.</p>
+<p><a href="https://github.com/its-techxtreme">github.com/its-techxtreme</a></p>
+</div>
+<!--
 <div id="scratch" style="top:96px;left:440px;display:none">
 <div id="scratchheader">
 <span id="scratchclose"></span>
@@ -29,12 +38,22 @@
 <p>Ok this is basicallyy a dump box. Homework, lyrics, rantss whatever idk what u wanna keep. I just keep losing notes in WhatsApp drafts anywayyyy, so ywahh</p>
 <textarea id="scratchbox"></textarea>
 </div>
-<div id="anime" style="top:150px;left:260px;display:none">
-<div id="animeheader">
-<span id="animeclose"></span>
- Anime gallery
+-->
+<div id="notes" class="app-window notes-window" style="display:none;top:78px;left:180px">
+<div id="notesheader" class="app-header">
+<p class="header-title">Notes</p>
+<button type="button" id="close-notes-tab" class="close-button"></button>
 </div>
-<p>Okayyy just click one, IT just shows it in this window. drop the files in "pics/"" wheneverr u wanna change</p>
+<div id="notes-content">
+<button id="new-note-button" class="add-note" type="button">+</button>
+</div>
+</div>
+<div id="anime" class="app-window" style="top:78px;left:260px;display:none">
+<div id="animeheader" class="app-header">
+<button class="close-button" id="animeclose" type="button"></button>
+<p class="header-title">Anime</p>
+</div>
+<p>Click one and it shows in this window.</p>
 <div id="picks">
 <button type="button" id="p1">Me hehe ;) </button>
 <button type="button" id="p2">Horimiya ♥ </button>

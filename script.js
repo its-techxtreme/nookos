@@ -1,14 +1,14 @@
 function updateTime() {
- var t = new Date().toLocaleString();
- var timeText = document.querySelector("#timeElement");
- timeText.innerHTML = t;
- }
-setInterval(updateTime, 1000);
-updateTime()
+    var currentTime = new Date().toLocaleString();
+    var timeText = document.querySelector(".time-now");
+    timeText.innerHTML = currentTime;
+}
 
-dragWin(document.getElementById("welcome"));
+setInterval( updateTime, 1000)
 
-function dragWin(el) {
+dragElement(document.getElementById("welcome"));
+
+function dragElement(el) {
  var initialX = 0
  var initialY = 0
  var currentX = 0
@@ -52,71 +52,133 @@ function dragWin(el) {
  }
 }
 
-function hideWin(el) {
- el.style.display = "none"
+var welcomeScreen = document.querySelector("#welcome");
+var welcomeScreenClose = document.querySelector("#closeWelcomeTab");
+var welcomeScreenOpen = document.querySelector("#openWelcomeTab");
+welcomeScreenClose.addEventListener("click", function() {
+  closeWindow(welcomeScreen)
+})
+welcomeScreenOpen.addEventListener("click", function() {
+  openWindow(welcomeScreen)
+})
+
+function closeWindow(element) {
+  element.style.display = "none"
 }
-function showWin(el) {
- el.style.display = "flex"
+function openWindow(element) {
+  element.style.display = "flex"
 }
 
-var wel = document.getElementById("welcome")
-var sc = document.getElementById("scratch")
-
-document.querySelector("#welcomeclose").addEventListener("click", function() {
- hideWin(wel)
+var notesScreen = document.querySelector("#notes");
+var notesScreenClose = document.querySelector("#close-notes-tab");
+var notesScreenOpen = document.querySelector("#open-notes-tab");
+notesScreenClose.addEventListener("click", function() {
+  closeWindow(notesScreen)
 })
-document.querySelector("#welcomeopen").addEventListener("click", function() {
- showWin(wel)
-})
-document.querySelector("#brand").addEventListener("click", function() {
- showWin(wel)
-})
-document.querySelector("#scratchclose").addEventListener("click", function() {
- hideWin(sc)
-})
-document.querySelector("#scratchopen").addEventListener("click", function() {
- showWin(sc)
+notesScreenOpen.addEventListener("click", function() {
+  openWindow(notesScreen)
 })
 
-dragWin(sc)
+dragElement(notesScreen)
 
-var biggestIndex = 1
-function bump(el) {
+var biggestIndex = 2
+function windowTapHandling(el) {
  biggestIndex++
  el.style.zIndex = biggestIndex
- document.getElementById("topbar").style.zIndex = biggestIndex + 1
+ document.getElementById("taskbar").style.zIndex = biggestIndex + 1
 }
-wel.addEventListener("mousedown", function() { bump(wel) })
-sc.addEventListener("mousedown", function() { bump(sc) })
+welcomeScreen.addEventListener("mousedown", function() { windowTapHandling(welcomeScreen) })
+notesScreen.addEventListener("mousedown", function() { windowTapHandling(notesScreen) })
 
 var junk = document.querySelector(".menu")
 
-var box = document.getElementById("scratchbox")
-try {
- box.value = localStorage.getItem("nook-scratch") || ""
-} catch (e) {
- console.log(e)
-}
-box.addEventListener("input", function() {
+function oldScratch() {
+ var box = document.getElementById("scratchbox")
  try {
-  localStorage.setItem("nook-scratch", box.value)
+  box.value = localStorage.getItem("nook-scratch") || ""
  } catch (e) {
   console.log(e)
  }
-})
+}
 
 var an = document.getElementById("anime")
 document.querySelector("#animeclose").addEventListener("click", function() {
- hideWin(an)
+ closeWindow(an)
 })
-document.querySelector("#animeopen").addEventListener("click", function() {
- showWin(an)
+document.querySelector("#openAnimeTab").addEventListener("click", function() {
+ openWindow(an)
 })
-dragWin(an)
-an.addEventListener("mousedown", function() { bump(an) })
+dragElement(an)
+an.addEventListener("mousedown", function() { windowTapHandling(an) })
 
 var shot = document.getElementById("shot")
 document.getElementById("p1").onclick = function() { shot.src = "pics/1.png" }
 document.getElementById("p2").onclick = function() { shot.src = "pics/2.png" }
 document.getElementById("p3").onclick = function() { shot.src = "pics/3.png" }
+
+var notesContainer = document.getElementById("notes-content")
+var addNoteButton = document.getElementById("new-note-button")
+
+getNotes().forEach(function(note) {
+ var noteElement = createNoteElement(note.id, note.content)
+ notesContainer.insertBefore(noteElement, addNoteButton)
+})
+
+addNoteButton.addEventListener("click", function() { addNote() })
+
+function getNotes() {
+ return JSON.parse(localStorage.getItem("nook-stickies") || "[]")
+}
+function saveNotes(notes) {
+ localStorage.setItem("nook-stickies", JSON.stringify(notes))
+}
+function createNoteElement(id, content) {
+ var element = document.createElement("textarea")
+ element.classList.add("note")
+ element.value = content
+ element.placeholder = "Empty Sticky Note"
+ element.addEventListener("change", function() {
+  updateNote(id, element.value)
+ })
+ element.addEventListener("dblclick", function() {
+  var doDelete = confirm("Delete the sticky note?")
+  if (doDelete) {
+   deleteNote(id, element)
+  }
+ })
+ return element
+}
+function addNote() {
+ var notes = getNotes()
+ var noteObject = {
+  id: Math.floor(Math.random() * 100000),
+  content: ""
+ }
+ var noteElement = createNoteElement(noteObject.id, noteObject.content)
+ notesContainer.insertBefore(noteElement, addNoteButton)
+ notes.push(noteObject)
+ saveNotes(notes)
+}
+function updateNote(id, newContent) {
+ var notes = getNotes()
+ var targetNote = notes.filter(function(note) { return note.id == id })[0]
+ targetNote.content = newContent
+ saveNotes(notes)
+}
+function deleteNote(id, element) {
+ var notes = getNotes().filter(function(note) { return note.id != id })
+ saveNotes(notes)
+ notesContainer.removeChild(element)
+}
+
+
+
+
+
+
+
+
+
+
+
  

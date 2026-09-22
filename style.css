@@ -1,18 +1,38 @@
-body {
-font-family: Helvetica, Arial, sans-serif;
-background-color: #4df2ea;
-margin: 0;
+#background {
+ position: fixed;
+ inset: 0;
+ z-index: 0;
+ background-image: url(./images/sofa.jpg);
+ background-size: cover;
+ background-repeat: no-repeat;
+ background-position: center;
+ filter: none;
+ height: 100dvh;
+ margin: 0%;
+ pointer-events: none;
 }
-
-#topbar {
-  display: flex;
-  justify-content: space-between;
-  background-color: white;
- position: absolute;
+*:not(#background) {
+ pointer-events: auto;
+}
+p {
+ margin: 0%;
+ margin-left: 10px;
+ margin-right: 10px;
+ font-size: 1.2rem;
+ font-family: Fredoka, Arial, sans-serif;
+ color: #2a1810;
+}
+#taskbar {
+ position: fixed;
  width: 100%;
-padding: 8px 13px;
-box-sizing: border-box;
+ display: flex;
+ flex-direction: row;
+ background-color: #ff6b6b;
+ justify-content: space-between;
+ padding-right: 10px;
+ z-index: 20;
 }
+#taskbar p { color: #2a1810; filter: none; }
 
 #welcome {
 border: 5px solid #2a2a2a;
@@ -146,3 +166,78 @@ cursor: pointer
  font-family: Helvetica, Arial, sans-serif
 }
 #shot { max-width: 100%; max-height: 220px; margin-top: 10px }
+
+.app-window {
+ position: absolute;
+ height: auto;
+ width: 380px;
+ background-color: #f0c230;
+ border: 8px solid #2a1810;
+ display: flex;
+ flex-direction: column;
+ z-index: 2;
+ top: 64px;
+}
+.app-header {
+ height: 40px;
+ background-color: #5ad0e8;
+ display: flex;
+ flex-direction: row;
+ align-items: center;
+ cursor: grab;
+}
+.header-title { font-size: 1.8rem; }
+.close-button {
+ width: 18px;
+ height: 18px;
+ margin-left: 8px;
+ border-radius: 50%;
+ border: none;
+ background: #ff6b6b;
+ cursor: pointer;
+}
+.app-icon {
+ position: relative;
+ z-index: 3;
+ margin-top: 52px;
+ width: 74px;
+ margin-left: 8px;
+ text-align: center;
+ cursor: pointer;
+ background: #d9a5e8;
+ border: 3px solid #2a1810;
+ border-radius: 10px;
+}
+.app-icon.selected { background: #8fde5d; }
+#anime {
+ background-color: #4ecdc4;
+ width: 360px;
+ height: auto;
+}
+.notes-window {
+ height: 500px;
+ width: 660px;
+}
+#notes-content {
+ padding: 20px;
+ display: grid;
+ grid-template-columns: repeat(auto-fill, 200px);
+ gap: 10px;
+ overflow: hidden;
+}
+.note {
+ height: 150px;
+ width: 150px;
+ resize: none;
+ background-color: #d9a5e8;
+}
+.add-note {
+ width: 155px;
+ font-size: 6rem;
+ background-color: #ff6b6b;
+ color: white;
+ cursor: pointer;
+}
+.add-note:hover {
+ background-color: #e85a5a;
+}

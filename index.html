@@ -8,6 +8,15 @@
 </head>
 <body>
 <div id="background"></div>
+<svg width="0" height="0" style="position:absolute">
+<filter id="px">
+<feFlood x="4" y="4" height="1" width="1"/>
+<feComposite width="8" height="8"/>
+<feTile result="a"/>
+<feComposite in="SourceGraphic" in2="a" operator="in"/>
+<feMorphology operator="dilate" radius="4"/>
+</filter>
+</svg>
 <div id="taskbar">
 <p>ColorfulNOOK OS</p>
 <p class="time-now">Time</p>
@@ -21,13 +30,15 @@
 <div class="app-icon" id="open-notes-tab">
 <p>notes</p>
 </div>
-<div class="app-window" id="welcome" style="top:78px;left:210px">
-<div class="app-header" id="welcomeheader">
+<div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
+<div id="welcomeheader" class="app-header">
+<p class="header-title">Welcome!</p>
 <button class="close-button" id="closeWelcomeTab" type="button"></button>
-<p class="header-title">Welcome</p>
 </div>
-<p>Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room behind it.</p>
-<p><a href="https://github.com/its-techxtreme">github.com/its-techxtreme</a></p>
+<div id="welcome-paragraph">
+Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room behind it.
+<a href="https://github.com/its-techxtreme">github.com/its-techxtreme</a>
+</div>
 </div>
 <!--
 <div id="scratch" style="top:96px;left:440px;display:none">

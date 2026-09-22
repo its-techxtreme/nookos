@@ -3,10 +3,13 @@
  inset: 0;
  z-index: 0;
  background-image: url(./images/sofa.jpg);
- background-size: cover;
+ background-size: 12vw 16vh;
  background-repeat: no-repeat;
  background-position: center;
- filter: none;
+ image-rendering: pixelated;
+ transform: scale(9);
+ transform-origin: center;
+ filter: blur(0.8px);
  height: 100dvh;
  margin: 0%;
  pointer-events: none;
@@ -24,6 +27,8 @@ p {
 }
 #taskbar {
  position: fixed;
+ top: 0;
+ left: 0;
  width: 100%;
  display: flex;
  flex-direction: row;
@@ -241,3 +246,38 @@ cursor: pointer
 .add-note:hover {
  background-color: #e85a5a;
 }
+#welcome {
+ border: 8px solid #2a1810;
+ border-radius: 0;
+ width: 500px;
+ height: 500px;
+ padding: 0;
+ background-color: #f0c230;
+}
+#welcomeheader {
+ margin: 0;
+ padding: 0;
+ background: #5ad0e8;
+}
+.welcome-window {
+ display: flex;
+ flex-direction: column;
+}
+#welcome-paragraph {
+ margin: 10px;
+ font-size: 1.6rem;
+ font-family: Fredoka, Arial, sans-serif;
+}
+#welcome-paragraph a { display: block; margin-top: 8px }
+#anime {
+ border: 8px solid #2a1810;
+ border-radius: 0;
+ padding: 0;
+ background-color: #4ecdc4;
+}
+#animeheader {
+ margin: 0;
+ padding: 0;
+ background: #5ad0e8;
+}
+#openWelcomeTab { margin-top: 78px; }

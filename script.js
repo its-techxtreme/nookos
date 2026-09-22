@@ -90,4 +90,18 @@ wel.addEventListener("mousedown", function() { bump(wel) })
 sc.addEventListener("mousedown", function() { bump(sc) })
 
 var junk = document.querySelector(".menu")
+
+var box = document.getElementById("scratchbox")
+try {
+ box.value = localStorage.getItem("nook-scratch") || ""
+} catch (e) {
+ console.log(e)
+}
+box.addEventListener("input", function() {
+ try {
+  localStorage.setItem("nook-scratch", box.value)
+ } catch (e) {
+  console.log(e)
+ }
+})
  

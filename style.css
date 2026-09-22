@@ -101,3 +101,6 @@ textarea {
 #brand { cursor: pointer }
 
 #topbar { z-index: 5 }
+
+textarea { width: 100%; box-sizing: border-box }
+.ic { font-weight: 700 }

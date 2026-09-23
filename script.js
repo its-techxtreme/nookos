@@ -171,6 +171,29 @@ function deleteNote(id, element) {
  notesContainer.removeChild(element)
 }
 
+var calcScreen = document.querySelector("#calculator")
+var calcClose = document.querySelector("#close-calculator-tab")
+var calcOpen = document.querySelector("#open-calculator-tab")
+calcClose.addEventListener("click", function() { closeWindow(calcScreen) })
+calcOpen.addEventListener("click", function() { openWindow(calcScreen) })
+dragElement(calcScreen)
+calcScreen.addEventListener("mousedown", function() { windowTapHandling(calcScreen) })
+
+var display = document.getElementById("display")
+function appendToDisplay(input) {
+ display.value += input
+}
+function clearDisplay() {
+ display.value = ""
+}
+function calculate() {
+ try {
+  display.value = eval(display.value)
+ } catch (error) {
+  display.value = "Error"
+ }
+}
+
 
 
 

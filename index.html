@@ -30,6 +30,9 @@
 <div class="app-icon" id="open-notes-tab">
 <p>notes</p>
 </div>
+<div class="app-icon" id="open-calculator-tab">
+<p>calc</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -57,6 +60,34 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 </div>
 <div id="notes-content">
 <button id="new-note-button" class="add-note" type="button">+</button>
+</div>
+</div>
+<div id="calculator" class="app-window calc-window" style="display:none;top:78px;left:430px">
+<div id="calculatorheader" class="app-header">
+<p class="header-title">Calculator</p>
+<button type="button" id="close-calculator-tab" class="close-button"></button>
+</div>
+<div id="act-calculator">
+<input id="display" readonly>
+<div id="keys">
+<button class="calc-button" type="button" onclick="appendToDisplay('+')">+</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('7')">7</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('8')">8</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('9')">9</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('-')">-</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('4')">4</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('5')">5</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('6')">6</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('*')">*</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('1')">1</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('2')">2</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('3')">3</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('/')">/</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('0')">0</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('.')">.</button>
+<button class="calc-button" type="button" onclick="calculate()">=</button>
+<button class="calc-button" type="button" onclick="clearDisplay()">C</button>
+</div>
 </div>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">

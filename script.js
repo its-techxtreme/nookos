@@ -188,11 +188,87 @@ function clearDisplay() {
 }
 function calculate() {
  try {
-  display.value = eval(display.value)
+  var raw = display.value.replace(/%/g, "/100")
+  display.value = eval(raw)
  } catch (error) {
   display.value = "Error"
  }
 }
+
+var musicScreen = document.querySelector("#music")
+document.querySelector("#close-music-tab").addEventListener("click", function() { closeWindow(musicScreen) })
+document.querySelector("#open-music-tab").addEventListener("click", function() { openWindow(musicScreen) })
+dragElement(musicScreen)
+musicScreen.addEventListener("mousedown", function() { windowTapHandling(musicScreen) })
+
+var songImage = document.getElementById("song-image")
+var songName = document.getElementById("song-name")
+var songArtist = document.getElementById("song-artist")
+var songSlider = document.getElementById("slider-song")
+var playpauseButton = document.getElementById("playpause-song")
+var prevSongButton = document.getElementById("prev-song")
+var nextSongButton = document.getElementById("next-song")
+var shuffleButton = document.getElementById("shuffle-song")
+var replayButton = document.getElementById("replay-song")
+var songs = [
+ { image: "pics/1.png", name: "window rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+ { image: "pics/2.png", name: "old tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+ { image: "pics/3.png", name: "late night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+ { image: "pics/1.png", name: "porch air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
+]
+var audio = document.createElement("audio")
+var currentSongIndex = 0
+var songRepeat = false
+updateSong()
+prevSongButton.addEventListener("click", function() {
+ if (currentSongIndex == 0) return
+ currentSongIndex--
+ updateSong()
+})
+nextSongButton.addEventListener("click", function() {
+ if (currentSongIndex == songs.length - 1) return
+ currentSongIndex++
+ updateSong()
+})
+playpauseButton.addEventListener("click", function() {
+ if (!audio.paused) {
+  audio.pause()
+  playpauseButton.innerHTML = "play"
+ } else {
+  audio.play().catch(function(e) { console.log(e) })
+  playpauseButton.innerHTML = "pause"
+ }
+})
+shuffleButton.addEventListener("click", function() {
+ currentSongIndex = Math.floor(Math.random() * songs.length)
+ updateSong()
+})
+replayButton.addEventListener("click", function() {
+ songRepeat = !songRepeat
+ replayButton.innerHTML = songRepeat ? "loop on" : "loop"
+})
+audio.addEventListener("ended", function() {
+ if (songRepeat) audio.play().catch(function(e) { console.log(e) })
+})
+function updateSong() {
+ var song = songs[currentSongIndex]
+ songImage.src = song.image
+ songName.innerText = song.name
+ songArtist.innerText = song.artist
+ audio.pause()
+ audio.src = song.audio
+ playpauseButton.innerHTML = "play"
+ songSlider.value = 0
+ audio.onloadedmetadata = function() {
+  songSlider.max = audio.duration
+ }
+}
+songSlider.addEventListener("change", function() {
+ if (audio.duration) audio.currentTime = songSlider.value
+})
+setInterval(function() {
+ if (audio.duration) songSlider.value = audio.currentTime
+}, 1000)
 
 
 

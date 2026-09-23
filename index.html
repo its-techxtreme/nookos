@@ -33,6 +33,9 @@
 <div class="app-icon" id="open-calculator-tab">
 <p>calc</p>
 </div>
+<div class="app-icon" id="open-music-tab">
+<p>music</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -70,6 +73,10 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 <div id="act-calculator">
 <input id="display" readonly>
 <div id="keys">
+<button class="calc-button" type="button" onclick="clearDisplay()">C</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('%')">%</button>
+<button class="calc-button" type="button" onclick="appendToDisplay('(')">(</button>
+<button class="calc-button" type="button" onclick="appendToDisplay(')')">)</button>
 <button class="calc-button" type="button" onclick="appendToDisplay('+')">+</button>
 <button class="calc-button" type="button" onclick="appendToDisplay('7')">7</button>
 <button class="calc-button" type="button" onclick="appendToDisplay('8')">8</button>
@@ -86,7 +93,25 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 <button class="calc-button" type="button" onclick="appendToDisplay('0')">0</button>
 <button class="calc-button" type="button" onclick="appendToDisplay('.')">.</button>
 <button class="calc-button" type="button" onclick="calculate()">=</button>
-<button class="calc-button" type="button" onclick="clearDisplay()">C</button>
+</div>
+</div>
+</div>
+<div id="music" class="app-window music-window" style="display:none;top:78px;left:500px">
+<div id="musicheader" class="app-header">
+<p class="header-title">Music</p>
+<button type="button" id="close-music-tab" class="close-button"></button>
+</div>
+<div id="music-item-holder">
+<img id="song-image" src="pics/1.png" alt="">
+<div id="song-name" class="music-text">window rain</div>
+<div id="song-artist" class="music-text">Athan</div>
+<input id="slider-song" type="range" value="0">
+<div>
+<button id="shuffle-song" class="music-button" type="button">mix</button>
+<button id="prev-song" class="music-button" type="button">prev</button>
+<button id="playpause-song" class="music-button" type="button">play</button>
+<button id="next-song" class="music-button" type="button">next</button>
+<button id="replay-song" class="music-button" type="button">loop</button>
 </div>
 </div>
 </div>

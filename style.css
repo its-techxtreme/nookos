@@ -345,3 +345,54 @@ cursor: pointer
  font-family: Fredoka, Arial, sans-serif;
  cursor: pointer;
 }
+.browser-window {
+ width: 520px;
+ height: 420px;
+ background: #5ad0e8;
+}
+#web-bar {
+ display: flex;
+ padding: 8px;
+ gap: 6px;
+}
+#web-box {
+ flex: 1;
+ border: 3px solid #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 4px;
+}
+#go-web {
+ background: #ff6b6b;
+ border: 3px solid #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ cursor: pointer;
+}
+#web-frame {
+ width: 100%;
+ height: 320px;
+ border: none;
+ background: white;
+}
+.pomo-window {
+ width: 280px;
+ height: auto;
+ background: #8fde5d;
+}
+#pomo-timer {
+ font-size: 2.4rem;
+ text-align: center;
+ margin: 16px;
+}
+#pomo-button-holder {
+ display: flex;
+ justify-content: center;
+ gap: 8px;
+ padding-bottom: 14px;
+}
+.pomo-button {
+ background: #ff6b6b;
+ border: 3px solid #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ cursor: pointer;
+ padding: 6px 10px;
+}

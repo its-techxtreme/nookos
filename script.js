@@ -270,6 +270,63 @@ setInterval(function() {
  if (audio.duration) songSlider.value = audio.currentTime
 }, 1000)
 
+var browserScreen = document.querySelector("#browser")
+document.querySelector("#close-browser-tab").addEventListener("click", function() { closeWindow(browserScreen) })
+document.querySelector("#open-browser-tab").addEventListener("click", function() { openWindow(browserScreen) })
+dragElement(browserScreen)
+browserScreen.addEventListener("mousedown", function() { windowTapHandling(browserScreen) })
+document.getElementById("go-web").addEventListener("click", function() {
+ var u = document.getElementById("web-box").value
+ if (u.indexOf("http") != 0) u = "https://" + u
+ document.getElementById("web-frame").src = u
+})
+
+var pomoScreen = document.querySelector("#pomo")
+document.querySelector("#close-pomo-tab").addEventListener("click", function() { closeWindow(pomoScreen) })
+document.querySelector("#open-pomo-tab").addEventListener("click", function() { openWindow(pomoScreen) })
+dragElement(pomoScreen)
+pomoScreen.addEventListener("mousedown", function() { windowTapHandling(pomoScreen) })
+
+var startButton = document.getElementById("start")
+var stopButton = document.getElementById("stop")
+var resetButton = document.getElementById("reset")
+var pomoTimer = document.getElementById("pomo-timer")
+var timeLeft = 1500
+var interval = null
+function updateTimer() {
+ var minutes = Math.floor(timeLeft / 60)
+ var seconds = timeLeft % 60
+ if (seconds < 10) seconds = "0" + seconds
+ pomoTimer.innerHTML = minutes + ":" + seconds
+}
+function startTimer() {
+ if (interval) return
+ interval = setInterval(function() {
+  timeLeft--
+  updateTimer()
+  if (timeLeft === 0) {
+   clearInterval(interval)
+   interval = null
+   alert("times up")
+   timeLeft = 1500
+   updateTimer()
+  }
+ }, 1000)
+}
+function stopTimer() {
+ clearInterval(interval)
+ interval = null
+}
+function resetTimer() {
+ clearInterval(interval)
+ interval = null
+ timeLeft = 1500
+ updateTimer()
+}
+startButton.addEventListener("click", startTimer)
+stopButton.addEventListener("click", stopTimer)
+resetButton.addEventListener("click", resetTimer)
+
 
 
 

@@ -36,6 +36,12 @@
 <div class="app-icon" id="open-music-tab">
 <p>music</p>
 </div>
+<div class="app-icon" id="open-browser-tab">
+<p>web</p>
+</div>
+<div class="app-icon" id="open-pomo-tab">
+<p>timer</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -113,6 +119,29 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 <button id="next-song" class="music-button" type="button">next</button>
 <button id="replay-song" class="music-button" type="button">loop</button>
 </div>
+</div>
+</div>
+<div id="browser" class="app-window browser-window" style="display:none;top:78px;left:240px">
+<div id="browserheader" class="app-header">
+<p class="header-title">Web</p>
+<button type="button" id="close-browser-tab" class="close-button"></button>
+</div>
+<div id="web-bar">
+<input id="web-box" value="webgram.techxtreme.me">
+<button type="button" id="go-web">go</button>
+</div>
+<iframe id="web-frame" src="https://webgram.techxtreme.me/"></iframe>
+</div>
+<div id="pomo" class="app-window pomo-window" style="display:none;top:78px;left:360px">
+<div id="pomoheader" class="app-header">
+<p class="header-title">Timer</p>
+<button type="button" id="close-pomo-tab" class="close-button"></button>
+</div>
+<p id="pomo-timer">25:00</p>
+<div id="pomo-button-holder">
+<button id="start" class="pomo-button" type="button">start</button>
+<button id="stop" class="pomo-button" type="button">stop</button>
+<button id="reset" class="pomo-button" type="button">reset</button>
 </div>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">

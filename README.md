@@ -1,12 +1,13 @@
 # Nook OS (STardance New Start)
 
-Rnnnn its a lightweight, interactive and simplistic web operating system environment built entirely with vanilla HTML, CSS, and JavaScript onlyy. This project simulates a desktop interface featuring draggable windows, a notes app and an ANIME galleryy all in a simpe modern BROWSER. Wallpaper is the picture the Nook (Nook means like a small corner) of a COlourful room
+Rnnnn its a lightweight, interactive and simplistic web operating system environment built entirely with vanilla HTML, CSS, and JavaScript onlyy. This project simulates a desktop interface featuring draggable windows, a Notes app, an ANIME galleryy, a Calculator, a Music app, a Web browserr and a Timer app all in a simpe modern BROWSER. Wallpaper is the picture the Nook (Nook means like a small corner) of a COlourful room
 
 ---
 
 This operating system was made in a Stardance Project :-}
 ### Stardance Project Link: https://stardance.hackclub.com/projects/64322
-### Live Link : https://Nookos-gamma.vercel.app
+### Live Link : https://ColourfulNook-OS.techxtreme.me (Ywah, I like usingg CUSTOM sub-domains)
+### In Case DNS sv are Down: https://NookOS-gamma.vercel.app
 
 ---
 
@@ -16,10 +17,18 @@ This operating system was made in a Stardance Project :-}
 
 * **Welcome:** Just a square window that says hiii & welcomes you to the OS.
 
-* **Notes App:** Hit the + and u get a stickyyy. It still remembers after a refresh. Double click and it asks before deletingg. Scratch is just old leftover code now, nothing opens it.
+* **Notes App:** Hit the + and u get a stickyyy. It still remembers after a refresh. Double click and it asks before deletingg.
 Scrapped the old Scratch App.
 
 * **Anime Gallery:** Click one of the three pics and it shows in that same window. The files live in `pics/`.
+
+* **Calculator:** A colored good looking , which can show Infinity & Error along with Calculations
+
+* **Music App:** Play, Pause, Next, Previous, Shuffle and Loop are the four options with Four tracks tracks available :- Window rain, Old tape, Late night, Porch air.
+
+* **Web Browser:** Address bar starts at webgram.techxtreme.me (My Old NewTab Stardance Project +_+). Hit go and it loads in the window. Also If you forget https it adds it.
+
+* **Timer:** Its set to start from 25:00.The options are Start, Stop & Reset. When it hits 0 it says times up and goes back to 25:00.
 
 ---
 

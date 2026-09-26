@@ -1,10 +1,55 @@
-function updateTime() {
-    var currentTime = new Date().toLocaleString();
-    var timeText = document.querySelector(".time-now");
-    timeText.innerHTML = currentTime;
+var faces = document.querySelectorAll(".clk")
+for (var f = 0; f < faces.length; f++) {
+ var box = faces[f].querySelector(".number")
+ var out = faces[f].className.indexOf("sm") != -1 ? 64 : 100
+ for (var i = 1; i <= 12; i++) {
+  var span = document.createElement("span")
+  span.textContent = i
+  var angle = i * 30
+  span.style.transform = "rotate(" + angle + "deg) translate(0, -" + out + "px) rotate(-" + angle + "deg)"
+  box.appendChild(span)
+ }
 }
 
-setInterval( updateTime, 1000)
+function tickFaces() {
+ var now = new Date()
+ var hours = now.getHours() % 12
+ var minutes = now.getMinutes()
+ var seconds = now.getSeconds()
+ var secondDeg = seconds * 6
+ var minuteDeg = minutes * 6 + seconds * 0.1
+ var hourDeg = hours * 30 + minutes * 0.5
+ var hh = document.querySelectorAll(".hour-hand")
+ var mm = document.querySelectorAll(".minute-hand")
+ var ss = document.querySelectorAll(".second-hand")
+ for (var n = 0; n < hh.length; n++) {
+  hh[n].style.transform = "rotate(" + hourDeg + "deg)"
+  mm[n].style.transform = "rotate(" + minuteDeg + "deg)"
+  ss[n].style.transform = "rotate(" + secondDeg + "deg)"
+ }
+ var h = now.getHours()
+ var am = h >= 12 ? "PM" : "AM"
+ h = h % 12
+ if (h == 0) h = 12
+ var m = minutes < 10 ? "0" + minutes : minutes
+ var s = seconds < 10 ? "0" + seconds : seconds
+ document.getElementById("clkread").textContent = h + ":" + m + ":" + s + " " + am
+}
+tickFaces()
+setInterval(tickFaces, 1000)
+
+var clockScreen = document.querySelector("#clock")
+var desk = document.querySelector("#deskclock")
+document.querySelector("#close-clock-tab").addEventListener("click", function() {
+ closeWindow(clockScreen)
+ desk.style.display = "block"
+})
+desk.addEventListener("click", function() {
+ openWindow(clockScreen)
+ desk.style.display = "none"
+})
+dragElement(clockScreen)
+clockScreen.addEventListener("mousedown", function() { windowTapHandling(clockScreen) })
 
 dragElement(document.getElementById("welcome"));
 

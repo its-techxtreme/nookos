@@ -418,3 +418,66 @@ cursor: pointer
 }
 .close-button::before { content: "x"; }
 #animeclose { width: 18px; height: 18px; }
+#deskclock {
+ position: fixed;
+ right: 18px;
+ top: 64px;
+ z-index: 4;
+ cursor: pointer;
+}
+.clk {
+ position: relative;
+ border-radius: 50%;
+ background: #f7e7a2;
+ border: 8px solid #2a1810;
+ box-shadow: 4px 5px 0 #2a1810;
+}
+.clk.sm { width: 168px; height: 168px; }
+.clk.lg { width: 250px; height: 250px; margin: 8px auto 16px; }
+.clk::after {
+ content: "";
+ position: absolute;
+ width: 12px;
+ height: 12px;
+ background: #ff6b6b;
+ border: 2px solid #2a1810;
+ border-radius: 50%;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ z-index: 5;
+}
+.number {
+ position: absolute;
+ inset: 0;
+}
+.number span {
+ position: absolute;
+ top: 50%;
+ left: 50%;
+ width: 22px;
+ height: 22px;
+ margin-left: -11px;
+ margin-top: -11px;
+ line-height: 22px;
+ text-align: center;
+ font-size: 14px;
+ color: #2a1810;
+}
+.clk.lg .number span { font-size: 18px; }
+.hand {
+ position: absolute;
+ bottom: 50%;
+ left: 50%;
+ transform-origin: bottom;
+ border-radius: 8px;
+ background: #2a1810;
+ z-index: 2;
+}
+.hour-hand { width: 6px; height: 44px; margin-left: -3px; }
+.minute-hand { width: 4px; height: 60px; margin-left: -2px; }
+.second-hand { width: 2px; height: 68px; margin-left: -1px; background: #ff6b6b; }
+.clk.lg .hour-hand { height: 72px; width: 7px; margin-left: -3px; }
+.clk.lg .minute-hand { height: 98px; }
+.clk.lg .second-hand { height: 110px; }
+#clkread { text-align: center; margin: 10px 8px 0; font-size: 1.2rem; }

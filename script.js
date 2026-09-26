@@ -115,6 +115,14 @@ var shot = document.getElementById("shot")
 document.getElementById("p1").onclick = function() { shot.src = "pics/1.png" }
 document.getElementById("p2").onclick = function() { shot.src = "pics/2.png" }
 document.getElementById("p3").onclick = function() { shot.src = "pics/3.png" }
+document.getElementById("p4").onclick = function() { shot.src = "pics/4.png" }
+document.getElementById("p5").onclick = function() { shot.src = "pics/5.png" }
+document.getElementById("p6").onclick = function() { shot.src = "pics/6.png" }
+document.getElementById("p7").onclick = function() { shot.src = "pics/7.png" }
+document.getElementById("p8").onclick = function() { shot.src = "pics/8.png" }
+document.getElementById("p9").onclick = function() { shot.src = "pics/9.png" }
+document.getElementById("p10").onclick = function() { shot.src = "pics/10.png" }
+document.getElementById("p11").onclick = function() { shot.src = "pics/11.png" }
 
 var notesContainer = document.getElementById("notes-content")
 var addNoteButton = document.getElementById("new-note-button")

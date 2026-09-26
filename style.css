@@ -396,3 +396,25 @@ cursor: pointer
  cursor: pointer;
  padding: 6px 10px;
 }
+#picks {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 6px;
+ padding: 0 8px 8px;
+}
+#anime { width: 420px; }
+#openWelcomeTab { width: 108px; }
+#openWelcomeTab p { margin-left: 2px; margin-right: 2px; }
+.header-title { order: 1; }
+.close-button {
+ order: 2;
+ margin-left: auto;
+ margin-right: 8px;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 12px;
+ line-height: 14px;
+ padding: 0;
+}
+.close-button::before { content: "x"; }
+#animeclose { width: 18px; height: 18px; }

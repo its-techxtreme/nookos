@@ -20,7 +20,7 @@ This operating system was made in a Stardance Project :-}
 * **Notes App:** Hit the + and u get a stickyyy. It still remembers after a refresh. Double click and it asks before deletingg.
 Scrapped the old Scratch App.
 
-* **Anime Gallery:** Click one of the three pics and it shows in that same window. The files live in `pics/`.
+* **Anime Gallery:** Click one of the total ELEVEN pics and it shows in that same window. The files live in `pics/`.
 
 * **Calculator:** A colored good looking , which can show Infinity & Error along with Calculations
 
@@ -29,6 +29,8 @@ Scrapped the old Scratch App.
 * **Web Browser:** Address bar starts at webgram.techxtreme.me (My Old NewTab Stardance Project +_+). Hit go and it loads in the window. Also If you forget https it adds it.
 
 * **Timer:** Its set to start from 25:00.The options are Start, Stop & Reset. When it hits 0 it says times up and goes back to 25:00.
+
+* **Clock Widget** Its a rlyy awesome looking minimal Clock widget located on the right. CLick once to open the clock in a window along with a digital time text and the Clock widget disappears when the clock window is open.
 
 ---
 

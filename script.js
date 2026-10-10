@@ -67,33 +67,8 @@ function dragElement(el) {
 
  function startDrag(e) {
   e = e || window.event
-  if (e.target && e.target.id == el.id + "close") return
-  e.preventDefault()
-  initialX = e.clientX
-  initialY = e.clientY
-  document.onmouseup = stopDrag
-  document.onmousemove = moveWin
- }
-
- function moveWin(e) {
-  e = e || window.event
-  e.preventDefault()
-  currentX = initialX - e.clientX
-  currentY = initialY - e.clientY
-  initialX = e.clientX
-  initialY = e.clientY
-  var nx = el.offsetLeft - currentX
-  var ny = el.offsetTop - currentY
-  if (ny < 38) ny = 38
-  if (nx < 0) nx = 0
-  if (nx > window.innerWidth - 80) nx = window.innerWidth - 80
-  el.style.top = ny + "px"
-  el.style.left = nx + "px"
- }
-
- function stopDrag() {
-  document.onmouseup = null
-  document.onmousemove = null
+  var hit = e.target && e.target.className ? e.target.className : ""
+  if (hit.indexOf("close-button") != -1 || hit.indexOf("mn") != -1 || hit.indexOf("mx") != -1) return
  }
 }
 
@@ -112,7 +87,74 @@ function closeWindow(element) {
 }
 function openWindow(element) {
   element.style.display = "flex"
+  var mark = iconFor[element.id]
+  if (mark) document.getElementById(mark).classList.remove("selected")
+  focusWin(element)
 }
+
+var heads = document.querySelectorAll(".app-header")
+for (var h = 0; h < heads.length; h++) {
+ var mn = document.createElement("button")
+ mn.className = "winbtn mn"
+ var mx = document.createElement("button")
+ mx.className = "winbtn mx"
+ var x = heads[h].querySelector(".close-button")
+ heads[h].insertBefore(mn, x)
+ heads[h].insertBefore(mx, x)
+}
+
+var iconFor = {
+ welcome: "openWelcomeTab",
+ anime: "openAnimeTab",
+ notes: "open-notes-tab",
+ calculator: "open-calculator-tab",
+ music: "open-music-tab",
+ browser: "open-browser-tab",
+ pomo: "open-pomo-tab"
+}
+
+function tuckWin(el) {
+ closeWindow(el)
+ var mark = iconFor[el.id]
+ if (mark) document.getElementById(mark).classList.add("selected")
+ if (el.id == "clock") desk.style.display = "block"
+}
+
+function growWin(el) {
+ if (el.getAttribute("data-big") == "1") {
+  el.style.top = el.getAttribute("data-t")
+  el.style.left = el.getAttribute("data-l")
+  el.style.width = el.getAttribute("data-w")
+  el.style.height = el.getAttribute("data-h")
+  el.setAttribute("data-big", "0")
+  return
+ }
+ // this one went under the bar, kept it anyway
+ // el.style.width = "100%"
+ // el.style.top = "0"
+ var cs = getComputedStyle(el)
+ el.setAttribute("data-t", el.offsetTop + "px")
+ el.setAttribute("data-l", el.offsetLeft + "px")
+ el.setAttribute("data-w", cs.width)
+ el.setAttribute("data-h", cs.height)
+ var extraW = el.offsetWidth - el.clientWidth
+ var extraH = el.offsetHeight - el.clientHeight
+ el.style.top = "36px"
+ el.style.left = "8px"
+ el.style.width = (window.innerWidth - 16 - extraW) + "px"
+ el.style.height = (window.innerHeight - 48 - extraH) + "px"
+ el.setAttribute("data-big", "1")
+}
+
+document.addEventListener("click", function(e) {
+ var t = e.target
+ var hit = t.className || ""
+ if (hit.indexOf("mn") == -1 && hit.indexOf("mx") == -1) return
+ var win = t.closest(".app-window")
+ if (!win) return
+ if (hit.indexOf("mn") != -1) hideWin(win)
+ else fillWin(win)
+})
 
 var notesScreen = document.querySelector("#notes");
 var notesScreenClose = document.querySelector("#close-notes-tab");
@@ -128,9 +170,7 @@ dragElement(notesScreen)
 
 var biggestIndex = 2
 function windowTapHandling(el) {
- biggestIndex++
- el.style.zIndex = biggestIndex
- document.getElementById("taskbar").style.zIndex = biggestIndex + 1
+ focusWin(el)
 }
 welcomeScreen.addEventListener("mousedown", function() { windowTapHandling(welcomeScreen) })
 notesScreen.addEventListener("mousedown", function() { windowTapHandling(notesScreen) })
@@ -379,6 +419,187 @@ function resetTimer() {
 startButton.addEventListener("click", startTimer)
 stopButton.addEventListener("click", stopTimer)
 resetButton.addEventListener("click", resetTimer)
+
+var zN = 2
+var order = []
+var slots = {}
+
+function slotOf(el) {
+ if (!el) return null
+ if (slots[el.id]) return slots[el.id]
+ slots[el.id] = {
+  el: el,
+  big: 0,
+  t: el.style.top || "",
+  l: el.style.left || "",
+  w: el.style.width || "",
+  h: el.style.height || ""
+ }
+ return slots[el.id]
+}
+
+function restack() {
+ var n
+ var base = 30
+ for (n = 0; n < order.length; n++) {
+  order[n].style.zIndex = base + n
+ }
+ zN = base + order.length
+ var bar = document.getElementById("taskbar")
+ if (bar) bar.style.zIndex = zN + 2
+ var icons = document.querySelectorAll(".app-icon")
+ for (n = 0; n < icons.length; n++) icons[n].style.zIndex = 3
+ if (desk) desk.style.zIndex = 4
+}
+
+function focusWin(el) {
+ if (!el) return
+ var i = order.indexOf(el)
+ if (i != -1) order.splice(i, 1)
+ order.push(el)
+ restack()
+ slotOf(el)
+}
+
+function hideWin(el) {
+ closeWindow(el)
+ var mark = iconFor[el.id]
+ if (mark) {
+  var ic = document.getElementById(mark)
+  if (ic) ic.classList.add("selected")
+ }
+ if (el.id == "clock" && desk) desk.style.display = "block"
+}
+
+function fillWin(el) {
+ var s = slotOf(el)
+ if (!s) return
+ if (s.big) {
+  el.style.top = s.t
+  el.style.left = s.l
+  el.style.width = s.w
+  el.style.height = s.h
+  el.classList.remove("big")
+  el.style.removeProperty("--sc")
+  s.big = 0
+  focusWin(el)
+  return
+ }
+ s.t = el.offsetTop + "px"
+ s.l = el.offsetLeft + "px"
+ s.w = getComputedStyle(el).width
+ s.h = getComputedStyle(el).height
+ // full bleed looked right until the bar covered the title
+ // el.style.top = "0px"
+ // el.style.width = "100%"
+ var extraW = el.offsetWidth - el.clientWidth
+ var extraH = el.offsetHeight - el.clientHeight
+ s.cw = el.clientWidth
+ s.ch = el.clientHeight
+ el.style.top = "36px"
+ el.style.left = "8px"
+ el.style.width = (window.innerWidth - 16 - extraW) + "px"
+ el.style.height = (window.innerHeight - 48 - extraH) + "px"
+ el.classList.add("big")
+ fitApp(el, s)
+ s.big = 1
+ focusWin(el)
+}
+
+function fitApp(el, s) {
+ var head = el.querySelector(".app-header")
+ var hh = head ? head.offsetHeight : 0
+ var oldH = s.ch - hh
+ if (oldH < 40) oldH = s.ch
+ var newH = el.clientHeight - hh
+ var sx = el.clientWidth / s.cw
+ var sy = newH / oldH
+ var sc = sx < sy ? sx : sy
+ if (sc < 1) sc = 1
+ el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
+}
+
+function looseClamp(el, nx, ny) {
+ var keep = 72
+ if (ny < 38) ny = 38
+ if (nx < 80 - el.offsetWidth) nx = 80 - el.offsetWidth
+ if (nx > window.innerWidth - keep) nx = window.innerWidth - keep
+ return { x: nx, y: ny }
+}
+
+function grab(el) {
+ var sx = 0
+ var sy = 0
+ var ox = 0
+ var oy = 0
+ var on = 0
+ var head = document.getElementById(el.id + "header")
+ if (!head) return
+ head.addEventListener("mousedown", function(e) {
+  var hit = e.target && e.target.className ? e.target.className : ""
+  if (hit.indexOf("close") != -1 || hit.indexOf("mn") != -1 || hit.indexOf("mx") != -1) return
+  if (e.button && e.button != 0) return
+  sx = e.clientX
+  sy = e.clientY
+  ox = el.offsetLeft
+  oy = el.offsetTop
+  on = 1
+  focusWin(el)
+ })
+ document.addEventListener("mousemove", function(e) {
+  if (!on) return
+  var p = looseClamp(el, ox + (e.clientX - sx), oy + (e.clientY - sy))
+  el.style.left = p.x + "px"
+  el.style.top = p.y + "px"
+ })
+ document.addEventListener("mouseup", function() {
+  on = 0
+ })
+}
+
+function refillBig() {
+ var id
+ for (id in slots) {
+  var s = slots[id]
+  if (!s.big) continue
+  var el = s.el
+  var extraW = el.offsetWidth - el.clientWidth
+  var extraH = el.offsetHeight - el.clientHeight
+  el.style.top = "36px"
+  el.style.left = "8px"
+  el.style.width = (window.innerWidth - 16 - extraW) + "px"
+  el.style.height = (window.innerHeight - 48 - extraH) + "px"
+  fitApp(el, s)
+ }
+}
+
+window.addEventListener("resize", refillBig)
+
+function pack(el) {
+ if (el.querySelector(".fit")) return
+ var box = document.createElement("div")
+ box.className = "fit"
+ var kids = []
+ var i
+ for (i = 0; i < el.children.length; i++) {
+  if (el.children[i].className.indexOf("app-header") == -1) kids.push(el.children[i])
+ }
+ for (i = 0; i < kids.length; i++) box.appendChild(kids[i])
+ el.appendChild(box)
+}
+
+function bootDesk() {
+ var list = document.querySelectorAll(".app-window")
+ var i
+ for (i = 0; i < list.length; i++) {
+  pack(list[i])
+  slotOf(list[i])
+  order.push(list[i])
+  grab(list[i])
+ }
+ restack()
+}
+bootDesk()
 
 
 

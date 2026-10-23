@@ -48,29 +48,8 @@ desk.addEventListener("click", function() {
  openWindow(clockScreen)
  desk.style.display = "none"
 })
-dragElement(clockScreen)
-clockScreen.addEventListener("mousedown", function() { windowTapHandling(clockScreen) })
+clockScreen.addEventListener("mousedown", function() { tap(clockScreen) })
 
-dragElement(document.getElementById("welcome"));
-
-function dragElement(el) {
- var initialX = 0
- var initialY = 0
- var currentX = 0
- var currentY = 0
-
- if (document.getElementById(el.id + "header")) {
-  document.getElementById(el.id + "header").onmousedown = startDrag
- } else {
-  el.onmousedown = startDrag
- }
-
- function startDrag(e) {
-  e = e || window.event
-  var hit = e.target && e.target.className ? e.target.className : ""
-  if (hit.indexOf("close-button") != -1 || hit.indexOf("mn") != -1 || hit.indexOf("mx") != -1) return
- }
-}
 
 var welcomeScreen = document.querySelector("#welcome");
 var welcomeScreenClose = document.querySelector("#closeWelcomeTab");
@@ -89,7 +68,8 @@ function openWindow(element) {
   element.style.display = "flex"
   var mark = iconFor[element.id]
   if (mark) document.getElementById(mark).classList.remove("selected")
-  focusWin(element)
+  tuck(element)
+  lift(element)
 }
 
 var heads = document.querySelectorAll(".app-header")
@@ -113,47 +93,17 @@ var iconFor = {
  pomo: "open-pomo-tab"
 }
 
-function tuckWin(el) {
- closeWindow(el)
- var mark = iconFor[el.id]
- if (mark) document.getElementById(mark).classList.add("selected")
- if (el.id == "clock") desk.style.display = "block"
-}
-
-function growWin(el) {
- if (el.getAttribute("data-big") == "1") {
-  el.style.top = el.getAttribute("data-t")
-  el.style.left = el.getAttribute("data-l")
-  el.style.width = el.getAttribute("data-w")
-  el.style.height = el.getAttribute("data-h")
-  el.setAttribute("data-big", "0")
-  return
- }
- // this one went under the bar, kept it anyway
- // el.style.width = "100%"
- // el.style.top = "0"
- var cs = getComputedStyle(el)
- el.setAttribute("data-t", el.offsetTop + "px")
- el.setAttribute("data-l", el.offsetLeft + "px")
- el.setAttribute("data-w", cs.width)
- el.setAttribute("data-h", cs.height)
- var extraW = el.offsetWidth - el.clientWidth
- var extraH = el.offsetHeight - el.clientHeight
- el.style.top = "36px"
- el.style.left = "8px"
- el.style.width = (window.innerWidth - 16 - extraW) + "px"
- el.style.height = (window.innerHeight - 48 - extraH) + "px"
- el.setAttribute("data-big", "1")
-}
-
+// old zoom used data-big and slid under the bar
+// el.style.width = "100%"
+// el.style.top = "0"
 document.addEventListener("click", function(e) {
  var t = e.target
  var hit = t.className || ""
  if (hit.indexOf("mn") == -1 && hit.indexOf("mx") == -1) return
  var win = t.closest(".app-window")
  if (!win) return
- if (hit.indexOf("mn") != -1) hideWin(win)
- else fillWin(win)
+ if (hit.indexOf("mn") != -1) shut(win)
+ else swell(win)
 })
 
 var notesScreen = document.querySelector("#notes");
@@ -166,14 +116,12 @@ notesScreenOpen.addEventListener("click", function() {
   openWindow(notesScreen)
 })
 
-dragElement(notesScreen)
 
-var biggestIndex = 2
-function windowTapHandling(el) {
- focusWin(el)
+function tap(el) {
+ lift(el)
 }
-welcomeScreen.addEventListener("mousedown", function() { windowTapHandling(welcomeScreen) })
-notesScreen.addEventListener("mousedown", function() { windowTapHandling(notesScreen) })
+welcomeScreen.addEventListener("mousedown", function() { tap(welcomeScreen) })
+notesScreen.addEventListener("mousedown", function() { tap(notesScreen) })
 
 var junk = document.querySelector(".menu")
 
@@ -193,8 +141,7 @@ document.querySelector("#animeclose").addEventListener("click", function() {
 document.querySelector("#openAnimeTab").addEventListener("click", function() {
  openWindow(an)
 })
-dragElement(an)
-an.addEventListener("mousedown", function() { windowTapHandling(an) })
+an.addEventListener("mousedown", function() { tap(an) })
 
 var shot = document.getElementById("shot")
 document.getElementById("p1").onclick = function() { shot.src = "pics/1.png" }
@@ -269,8 +216,7 @@ var calcClose = document.querySelector("#close-calculator-tab")
 var calcOpen = document.querySelector("#open-calculator-tab")
 calcClose.addEventListener("click", function() { closeWindow(calcScreen) })
 calcOpen.addEventListener("click", function() { openWindow(calcScreen) })
-dragElement(calcScreen)
-calcScreen.addEventListener("mousedown", function() { windowTapHandling(calcScreen) })
+calcScreen.addEventListener("mousedown", function() { tap(calcScreen) })
 
 var display = document.getElementById("display")
 function appendToDisplay(input) {
@@ -291,8 +237,7 @@ function calculate() {
 var musicScreen = document.querySelector("#music")
 document.querySelector("#close-music-tab").addEventListener("click", function() { closeWindow(musicScreen) })
 document.querySelector("#open-music-tab").addEventListener("click", function() { openWindow(musicScreen) })
-dragElement(musicScreen)
-musicScreen.addEventListener("mousedown", function() { windowTapHandling(musicScreen) })
+musicScreen.addEventListener("mousedown", function() { tap(musicScreen) })
 
 var songImage = document.getElementById("song-image")
 var songName = document.getElementById("song-name")
@@ -366,8 +311,7 @@ setInterval(function() {
 var browserScreen = document.querySelector("#browser")
 document.querySelector("#close-browser-tab").addEventListener("click", function() { closeWindow(browserScreen) })
 document.querySelector("#open-browser-tab").addEventListener("click", function() { openWindow(browserScreen) })
-dragElement(browserScreen)
-browserScreen.addEventListener("mousedown", function() { windowTapHandling(browserScreen) })
+browserScreen.addEventListener("mousedown", function() { tap(browserScreen) })
 document.getElementById("go-web").addEventListener("click", function() {
  var u = document.getElementById("web-box").value
  if (u.indexOf("http") != 0) u = "https://" + u
@@ -377,8 +321,7 @@ document.getElementById("go-web").addEventListener("click", function() {
 var pomoScreen = document.querySelector("#pomo")
 document.querySelector("#close-pomo-tab").addEventListener("click", function() { closeWindow(pomoScreen) })
 document.querySelector("#open-pomo-tab").addEventListener("click", function() { openWindow(pomoScreen) })
-dragElement(pomoScreen)
-pomoScreen.addEventListener("mousedown", function() { windowTapHandling(pomoScreen) })
+pomoScreen.addEventListener("mousedown", function() { tap(pomoScreen) })
 
 var startButton = document.getElementById("start")
 var stopButton = document.getElementById("stop")
@@ -424,7 +367,7 @@ var zN = 2
 var order = []
 var slots = {}
 
-function slotOf(el) {
+function slot(el) {
  if (!el) return null
  if (slots[el.id]) return slots[el.id]
  slots[el.id] = {
@@ -438,7 +381,7 @@ function slotOf(el) {
  return slots[el.id]
 }
 
-function restack() {
+function pile() {
  var n
  var base = 30
  for (n = 0; n < order.length; n++) {
@@ -452,16 +395,16 @@ function restack() {
  if (desk) desk.style.zIndex = 4
 }
 
-function focusWin(el) {
+function lift(el) {
  if (!el) return
  var i = order.indexOf(el)
  if (i != -1) order.splice(i, 1)
  order.push(el)
- restack()
- slotOf(el)
+ pile()
+ slot(el)
 }
 
-function hideWin(el) {
+function shut(el) {
  closeWindow(el)
  var mark = iconFor[el.id]
  if (mark) {
@@ -471,8 +414,8 @@ function hideWin(el) {
  if (el.id == "clock" && desk) desk.style.display = "block"
 }
 
-function fillWin(el) {
- var s = slotOf(el)
+function swell(el) {
+ var s = slot(el)
  if (!s) return
  if (s.big) {
   el.style.top = s.t
@@ -482,7 +425,7 @@ function fillWin(el) {
   el.classList.remove("big")
   el.style.removeProperty("--sc")
   s.big = 0
-  focusWin(el)
+  lift(el)
   return
  }
  s.t = el.offsetTop + "px"
@@ -492,21 +435,21 @@ function fillWin(el) {
  // full bleed looked right until the bar covered the title
  // el.style.top = "0px"
  // el.style.width = "100%"
- var extraW = el.offsetWidth - el.clientWidth
- var extraH = el.offsetHeight - el.clientHeight
+ el.classList.add("big")
+ var extraW = 0
+ var extraH = 0
  s.cw = el.clientWidth
  s.ch = el.clientHeight
  el.style.top = "36px"
  el.style.left = "8px"
  el.style.width = (window.innerWidth - 16 - extraW) + "px"
  el.style.height = (window.innerHeight - 48 - extraH) + "px"
- el.classList.add("big")
- fitApp(el, s)
+ fit(el, s)
  s.big = 1
- focusWin(el)
+ lift(el)
 }
 
-function fitApp(el, s) {
+function fit(el, s) {
  var head = el.querySelector(".app-header")
  var hh = head ? head.offsetHeight : 0
  var oldH = s.ch - hh
@@ -516,10 +459,11 @@ function fitApp(el, s) {
  var sy = newH / oldH
  var sc = sx < sy ? sx : sy
  if (sc < 1) sc = 1
+ if (el.id == "browser" || el.id == "notes") sc = 1
  el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
 }
 
-function looseClamp(el, nx, ny) {
+function clamp(el, nx, ny) {
  var keep = 72
  if (ny < 38) ny = 38
  if (nx < 80 - el.offsetWidth) nx = 80 - el.offsetWidth
@@ -544,20 +488,110 @@ function grab(el) {
   ox = el.offsetLeft
   oy = el.offsetTop
   on = 1
-  focusWin(el)
+  lift(el)
  })
  document.addEventListener("mousemove", function(e) {
   if (!on) return
-  var p = looseClamp(el, ox + (e.clientX - sx), oy + (e.clientY - sy))
+  var p = clamp(el, ox + (e.clientX - sx), oy + (e.clientY - sy))
   el.style.left = p.x + "px"
   el.style.top = p.y + "px"
  })
  document.addEventListener("mouseup", function() {
   on = 0
  })
+ head.addEventListener("touchstart", function(e) {
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  var hit = e.target && e.target.className ? e.target.className : ""
+  if (hit.indexOf("close") != -1 || hit.indexOf("mn") != -1 || hit.indexOf("mx") != -1) return
+  sx = p.clientX
+  sy = p.clientY
+  ox = el.offsetLeft
+  oy = el.offsetTop
+  on = 1
+  lift(el)
+ }, { passive: true })
+ document.addEventListener("touchmove", function(e) {
+  if (!on) return
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  var box = clamp(el, ox + (p.clientX - sx), oy + (p.clientY - sy))
+  el.style.left = box.x + "px"
+  el.style.top = box.y + "px"
+ }, { passive: true })
+ document.addEventListener("touchend", function() {
+  on = 0
+ })
 }
 
-function refillBig() {
+function narrow() {
+ return window.innerWidth < 720
+}
+
+function iconFloor() {
+ var icons = document.querySelectorAll(".app-icon")
+ var n = 52
+ var i
+ for (i = 0; i < icons.length; i++) {
+  var b = icons[i].offsetTop + icons[i].offsetHeight
+  if (b > n) n = b
+ }
+ return n
+}
+
+function remember(el) {
+ var s = slot(el)
+ if (!s || s.home) return
+ s.home = {
+  l: el.style.left,
+  t: el.style.top,
+  w: el.style.width,
+  h: el.style.height
+ }
+}
+
+function spread(el) {
+ var s = slot(el)
+ if (!s || !s.home) return
+ if (s.big) return
+ el.style.left = s.home.l
+ el.style.top = s.home.t
+ el.style.width = s.home.w
+ el.style.height = s.home.h
+ s.home = null
+}
+
+function tuck(el) {
+ if (!el) return
+ if (el.className.indexOf("big") != -1) return
+ if (el.style.display == "none") return
+ if (!narrow()) {
+  spread(el)
+  return
+ }
+ remember(el)
+ var edge = el.offsetWidth - el.clientWidth
+ if (getComputedStyle(el).boxSizing == "border-box") edge = 0
+ var w = window.innerWidth - 16 - edge
+ if (w < 200) w = 200
+ el.style.left = "8px"
+ el.style.width = w + "px"
+ var top = iconFloor() + 8
+ if (top < 96) top = 96
+ el.style.top = top + "px"
+ var room = window.innerHeight - top - 12
+ if (room < 160) room = 160
+ var want = 320
+ if (el.id == "notes" || el.id == "calculator") want = 460
+ if (el.id == "browser" || el.id == "anime" || el.id == "clock") want = 400
+ if (el.id == "pomo" || el.id == "welcome") want = 260
+ if (want > room) want = room
+ el.style.height = want + "px"
+}
+
+var phone = narrow() ? 1 : 0
+
+function onSize() {
  var id
  for (id in slots) {
   var s = slots[id]
@@ -565,17 +599,36 @@ function refillBig() {
   var el = s.el
   var extraW = el.offsetWidth - el.clientWidth
   var extraH = el.offsetHeight - el.clientHeight
+  if (getComputedStyle(el).boxSizing == "border-box") {
+   extraW = 0
+   extraH = 0
+  }
   el.style.top = "36px"
   el.style.left = "8px"
   el.style.width = (window.innerWidth - 16 - extraW) + "px"
   el.style.height = (window.innerHeight - 48 - extraH) + "px"
-  fitApp(el, s)
+  fit(el, s)
  }
+ var now = narrow() ? 1 : 0
+ var list = document.querySelectorAll(".app-window")
+ var i
+ for (i = 0; i < list.length; i++) {
+  if (list[i].className.indexOf("big") != -1) continue
+  if (now != phone) tuck(list[i])
+  else if (now && list[i].style.display != "none" && list[i].offsetLeft < 24) {
+   var edge = list[i].offsetWidth - list[i].clientWidth
+   if (getComputedStyle(list[i]).boxSizing == "border-box") edge = 0
+   var w = window.innerWidth - 16 - edge
+   if (w < 200) w = 200
+   list[i].style.width = w + "px"
+  }
+ }
+ phone = now
 }
 
-window.addEventListener("resize", refillBig)
+window.addEventListener("resize", onSize)
 
-function pack(el) {
+function wrap(el) {
  if (el.querySelector(".fit")) return
  var box = document.createElement("div")
  box.className = "fit"
@@ -588,18 +641,185 @@ function pack(el) {
  el.appendChild(box)
 }
 
-function bootDesk() {
+function grips(el) {
+ if (el.querySelector(".grip")) return
+ var sides = ["n", "e", "s", "w", "se", "sw", "ne"]
+ var i
+ for (i = 0; i < sides.length; i++) {
+  var g = document.createElement("div")
+  g.className = "grip " + sides[i]
+  g.setAttribute("data-d", sides[i])
+  el.appendChild(g)
+ }
+}
+
+var rs = null
+
+function unbig(el) {
+ var s = slot(el)
+ if (!s || !s.big) return
+ el.classList.remove("big")
+ el.style.removeProperty("--sc")
+ s.big = 0
+}
+
+document.addEventListener("mousedown", function(e) {
+ var t = e.target
+ var hit = t.className || ""
+ if (hit.indexOf("grip") == -1) return
+ var el = t.parentNode
+ if (!el || String(el.className).indexOf("app-window") == -1) return
+ e.preventDefault()
+ e.stopPropagation()
+ unbig(el)
+ var cs = getComputedStyle(el)
+ rs = {
+  el: el,
+  d: t.getAttribute("data-d"),
+  x: e.clientX,
+  y: e.clientY,
+  l: el.offsetLeft,
+  t: el.offsetTop,
+  w: parseFloat(cs.width),
+  h: parseFloat(cs.height)
+ }
+ lift(el)
+})
+
+document.addEventListener("touchstart", function(e) {
+ var t = e.target
+ var hit = t.className || ""
+ if (hit.indexOf("grip") == -1) return
+ var el = t.parentNode
+ if (!el || String(el.className).indexOf("app-window") == -1) return
+ var p = e.touches && e.touches[0]
+ if (!p) return
+ unbig(el)
+ var cs = getComputedStyle(el)
+ rs = {
+  el: el,
+  d: t.getAttribute("data-d"),
+  x: p.clientX,
+  y: p.clientY,
+  l: el.offsetLeft,
+  t: el.offsetTop,
+  w: parseFloat(cs.width),
+  h: parseFloat(cs.height)
+ }
+ lift(el)
+}, { passive: true })
+
+function mins(id) {
+ if (id == "calculator") return { w: 250, h: 280 }
+ if (id == "clock") return { w: 280, h: 340 }
+ if (id == "browser") return { w: 300, h: 220 }
+ if (id == "music") return { w: 240, h: 220 }
+ if (id == "notes") return { w: 280, h: 200 }
+ if (id == "anime") return { w: 300, h: 220 }
+ if (id == "welcome") return { w: 280, h: 200 }
+ if (id == "pomo") return { w: 200, h: 150 }
+ return { w: 200, h: 150 }
+}
+
+function place(el, l, t, w, h) {
+ el.style.left = Math.round(l) + "px"
+ el.style.top = Math.round(t) + "px"
+ el.style.width = Math.round(w) + "px"
+ el.style.height = Math.round(h) + "px"
+}
+
+function dragSize(e) {
+ if (!rs) return
+ var px = e.clientX
+ var py = e.clientY
+ if (e.touches && e.touches.length) {
+  px = e.touches[0].clientX
+  py = e.touches[0].clientY
+ }
+ var dx = px - rs.x
+ var dy = py - rs.y
+ var l = rs.l
+ var t = rs.t
+ var w = rs.w
+ var h = rs.h
+ var d = rs.d
+ var fl = mins(rs.el.id)
+ var minW = fl.w
+ var minH = fl.h
+ if (d == "e" || d == "ne" || d == "se") w = rs.w + dx
+ if (d == "s" || d == "se" || d == "sw") h = rs.h + dy
+ if (d == "w" || d == "sw") {
+  w = rs.w - dx
+  l = rs.l + dx
+ }
+ if (d == "n" || d == "ne") {
+  h = rs.h - dy
+  t = rs.t + dy
+ }
+ if (w < minW) {
+  if (d == "w" || d == "sw") l = rs.l + (rs.w - minW)
+  w = minW
+ }
+ if (h < minH) {
+  if (d == "n" || d == "ne") t = rs.t + (rs.h - minH)
+  h = minH
+ }
+ if (t < 38) {
+  if (d == "n" || d == "ne") h = h - (38 - t)
+  if (h < minH) h = minH
+  t = 38
+ }
+ var extraW = rs.el.offsetWidth - rs.el.clientWidth
+ var extraH = rs.el.offsetHeight - rs.el.clientHeight
+ var maxR = window.innerWidth - extraW
+ var maxB = window.innerHeight - extraH
+ if (l + w > maxR) {
+  if (d == "e" || d == "ne" || d == "se") w = maxR - l
+  else l = maxR - w
+ }
+ if (t + h > maxB) {
+  if (d == "s" || d == "se" || d == "sw") h = maxB - t
+  else t = maxB - h
+ }
+ if (l < 0) {
+  if (d == "w" || d == "sw") w = w + l
+  l = 0
+ }
+ if (w < minW) {
+  l = l - (minW - w)
+  w = minW
+  if (l < 0) l = 0
+ }
+ if (h < minH) h = minH
+ place(rs.el, l, t, w, h)
+}
+
+document.addEventListener("mousemove", dragSize)
+document.addEventListener("touchmove", function(e) {
+ if (!rs) return
+ dragSize(e)
+}, { passive: true })
+
+document.addEventListener("mouseup", function() {
+ rs = null
+})
+document.addEventListener("touchend", function() {
+ rs = null
+})
+
+function boot() {
  var list = document.querySelectorAll(".app-window")
  var i
  for (i = 0; i < list.length; i++) {
-  pack(list[i])
-  slotOf(list[i])
+  wrap(list[i])
+  grips(list[i])
+  slot(list[i])
   order.push(list[i])
   grab(list[i])
  }
- restack()
+ pile()
 }
-bootDesk()
+boot()
 
 
 

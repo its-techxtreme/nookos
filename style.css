@@ -556,3 +556,145 @@ cursor: pointer
  aspect-ratio: 1;
 }
 .app-window.big img { object-fit: contain; height: auto; max-width: 100%; }
+#browser.big > .fit {
+ transform: none;
+ align-self: stretch;
+ width: 100%;
+ flex: 1 1 auto;
+ min-height: 0;
+ display: flex;
+ flex-direction: column;
+}
+#browser.big #web-bar { width: 100%; box-sizing: border-box; }
+#browser.big #web-frame {
+ width: 100%;
+ height: auto;
+ flex: 1 1 auto;
+ min-height: 0;
+}
+#notes.big > .fit {
+ transform: none;
+ align-self: stretch;
+ width: 100%;
+ flex: 1 1 auto;
+ min-height: 0;
+ overflow: auto;
+}
+#notes.big #notes-content {
+ grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+}
+.grip {
+ position: absolute;
+ z-index: 8;
+}
+.grip.n, .grip.s {
+ left: 118px;
+ right: 10px;
+ height: 8px;
+ cursor: ns-resize;
+}
+.grip.n { top: 0; }
+.grip.s { bottom: 0; left: 10px; }
+.grip.e, .grip.w {
+ top: 46px;
+ bottom: 10px;
+ width: 8px;
+ cursor: ew-resize;
+}
+.grip.e { right: 0; }
+.grip.w { left: 0; }
+.grip.se, .grip.sw, .grip.ne {
+ width: 16px;
+ height: 16px;
+}
+.grip.se { right: 0; bottom: 0; cursor: nwse-resize; }
+.grip.sw { left: 0; bottom: 0; cursor: nesw-resize; }
+.grip.ne { right: 0; top: 0; cursor: nesw-resize; }
+
+@media (max-width: 720px) {
+ body { padding-right: 132px; }
+ #openWelcomeTab { margin-top: 36px; width: auto; }
+ #animeopen { top: auto; }
+ .app-icon {
+  display: inline-block;
+  width: 92px;
+  margin-top: 36px;
+  margin-left: 6px;
+  margin-right: 2px;
+  padding: 8px 4px;
+  vertical-align: top;
+ }
+ .app-icon p { margin-left: 2px; margin-right: 2px; font-size: 1rem; }
+ #deskclock {
+  position: absolute;
+  right: 4px;
+  top: 46px;
+  transform: scale(0.66);
+  transform-origin: top right;
+ }
+ .app-window:not(.big) {
+  max-height: calc(100vh - 170px);
+ }
+ .app-header { height: 48px; }
+ .grip.e, .grip.w { top: 54px; }
+ #notes #notes-content {
+  grid-template-columns: 1fr;
+ }
+ #notes .note, #notes textarea, #notes input {
+  width: 100%;
+  box-sizing: border-box;
+ }
+ #browser #web-frame {
+  height: 280px;
+ }
+ #keys {
+  width: 100%;
+  max-width: 320px;
+ }
+ #display { width: 100%; max-width: 300px; }
+ #shot { max-height: 200px; object-fit: contain; }
+ #cover, .music-window img {
+  max-width: 160px;
+  height: auto;
+ }
+ #welcome-paragraph { max-width: 100%; }
+ #pomo-timer { font-size: 2.4rem; }
+ .winbtn,
+ .app-header .close-button,
+ #animeclose,
+ #welcomeclose {
+  width: 28px;
+  height: 28px;
+ }
+ .mx::before {
+  width: 12px;
+  height: 12px;
+  margin: 7px auto 0;
+ }
+ .grip.n, .grip.s { height: 14px; }
+ .grip.e, .grip.w { width: 14px; }
+ .grip.se, .grip.sw, .grip.ne { width: 22px; height: 22px; }
+ .calc-button {
+  height: 56px;
+  width: calc(25% - 6px);
+  font-size: 1.35rem;
+ }
+ #keys { max-width: none; }
+ .app-window:not(.big) > .fit {
+  overflow: auto;
+  width: 100%;
+  min-height: 0;
+ }
+ #browser:not(.big) #web-frame {
+  width: 100%;
+  height: 48vh;
+ }
+ .app-header, .grip { touch-action: none; }
+ .music-button, .pomo-button, #go-web, #picks button {
+  padding: 10px 12px;
+  font-size: 1rem;
+ }
+ #web-box { padding: 8px; font-size: 1rem; }
+ #pomo-timer { font-size: 2.4rem; }
+ #shot { max-height: 200px; }
+}

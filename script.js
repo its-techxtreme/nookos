@@ -67,6 +67,7 @@ welcomeScreenOpen.addEventListener("click", function() {
 
 function closeWindow(element) {
   element.style.display = "none"
+  if (element && element.id == "cam") killCam()
 }
 function openWindow(element) {
   element.style.display = "flex"
@@ -96,7 +97,8 @@ var iconFor = {
  music: "open-music-tab",
  browser: "open-browser-tab",
  pomo: "open-pomo-tab",
- settings: "open-set-tab"
+ settings: "open-set-tab",
+ cam: "open-cam-tab"
 }
 
 // old zoom used data-big and slid under the bar
@@ -482,7 +484,7 @@ function fit(el, s) {
  var sy = newH / oldH
  var sc = sx < sy ? sx : sy
  if (sc < 1) sc = 1
- if (el.id == "browser" || el.id == "notes") sc = 1
+ if (el.id == "browser" || el.id == "notes" || el.id == "cam") sc = 1
  el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
 }
 
@@ -609,6 +611,7 @@ function tuck(el) {
  if (el.id == "browser" || el.id == "anime" || el.id == "clock") want = 400
  if (el.id == "pomo") want = 220
  if (el.id == "settings") want = 280
+ if (el.id == "cam") want = 420
  if (el.id == "welcome") want = 0
  if (want > room) want = room
  if (want) el.style.height = want + "px"
@@ -745,6 +748,7 @@ function mins(id) {
  if (id == "anime") return { w: 300, h: 220 }
  if (id == "welcome") return { w: 280, h: 200 }
  if (id == "pomo") return { w: 200, h: 150 }
+ if (id == "cam") return { w: 260, h: 220 }
  return { w: 200, h: 150 }
 }
 
@@ -766,7 +770,7 @@ function grow(el) {
  var s = slot(el)
  if (!s || !s.baseW) return
  if (String(el.className).indexOf("big") != -1) return
- if (el.id == "browser" || el.id == "notes") {
+ if (el.id == "browser" || el.id == "notes" || el.id == "cam") {
   el.style.setProperty("--sc", "1")
   if (el.id == "browser") {
    var frame = document.getElementById("web-frame")
@@ -1185,7 +1189,8 @@ function makeMenu() {
   ["browser", "Web"],
   ["pomo", "Timer"],
   ["clock", "Clock"],
-  ["settings", "Settings"]
+  ["settings", "Settings"],
+  ["cam", "Camera"]
  ]
  var i
  for (i = 0; i < names.length; i++) {
@@ -1311,6 +1316,147 @@ function setWall(kind) {
 var kept = "sofa"
 try { kept = localStorage.getItem("nook-wall") || "sofa" } catch (err) { console.log(err) }
 setWall(kept)
+
+var camScreen = document.querySelector("#cam")
+var camStream = null
+document.querySelector("#close-cam-tab").addEventListener("click", function() { closeWindow(camScreen) })
+document.querySelector("#open-cam-tab").addEventListener("click", function() { openWindow(camScreen) })
+camScreen.addEventListener("mousedown", function() { tap(camScreen) })
+
+function pullRoll() {
+ try {
+  var raw = localStorage.getItem("nook-cam")
+  if (!raw) return []
+  return JSON.parse(raw)
+ } catch (err) {
+  console.log(err)
+  return []
+ }
+}
+function stashRoll(list) {
+ try {
+  localStorage.setItem("nook-cam", JSON.stringify(list))
+ } catch (err) {
+  console.log(err)
+  document.getElementById("cam-note").textContent = "Could not save that shot"
+ }
+}
+function killCam() {
+ if (!camStream) return
+ var tracks = camStream.getTracks()
+ var i
+ for (i = 0; i < tracks.length; i++) tracks[i].stop()
+ camStream = null
+ var vid = document.getElementById("cam-view")
+ if (vid) vid.srcObject = null
+}
+function showRoll() {
+ var box = document.getElementById("cam-roll")
+ if (!box) return
+ box.innerHTML = ""
+ var list = pullRoll()
+ var i
+ for (i = 0; i < list.length; i++) {
+  var slot = document.createElement("div")
+  slot.className = "shot"
+  var img = document.createElement("img")
+  img.src = list[i]
+  img.setAttribute("data-i", String(i))
+  var x = document.createElement("button")
+  x.type = "button"
+  x.textContent = "x"
+  x.setAttribute("data-i", String(i))
+  slot.appendChild(img)
+  slot.appendChild(x)
+  box.appendChild(slot)
+ }
+}
+function openCam() {
+ killCam()
+ var note = document.getElementById("cam-note")
+ if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+  note.textContent = "Camera is blocked in this browser"
+  return
+ }
+ navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false }).then(function(stream) {
+  camStream = stream
+  var vid = document.getElementById("cam-view")
+  vid.srcObject = stream
+  note.textContent = ""
+ }).catch(function(err) {
+  console.log(err)
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false }).then(function(stream) {
+   camStream = stream
+   var vid = document.getElementById("cam-view")
+   vid.srcObject = stream
+   note.textContent = ""
+  }).catch(function(err2) {
+   console.log(err2)
+   if (err2 && err2.name == "NotAllowedError") {
+    note.textContent = "Camera is blocked. Allow it and hit Open again."
+   } else {
+    note.textContent = "No camera turned up. Hit Open again."
+   }
+  })
+ })
+}
+function snapCam() {
+ var vid = document.getElementById("cam-view")
+ if (!vid || !vid.videoWidth) {
+  document.getElementById("cam-note").textContent = "Open the camera first"
+  return
+ }
+ var c = document.getElementById("cam-grab")
+ var w = vid.videoWidth
+ var h = vid.videoHeight
+ if (w > 280) {
+  h = Math.round(h * 280 / w)
+  w = 280
+ }
+ c.width = w
+ c.height = h
+ var g = c.getContext("2d")
+ g.translate(w, 0)
+ g.scale(-1, 1)
+ g.drawImage(vid, 0, 0, w, h)
+ var url = c.toDataURL("image/jpeg", 0.6)
+ var list = pullRoll()
+ list.unshift(url)
+ if (list.length > 6) list.length = 6
+ stashRoll(list)
+ showRoll()
+}
+document.getElementById("cam-go").addEventListener("click", function(e) {
+ e.stopPropagation()
+ openCam()
+})
+document.getElementById("cam-snap").addEventListener("click", function(e) {
+ e.stopPropagation()
+ snapCam()
+})
+document.getElementById("cam-roll").addEventListener("click", function(e) {
+ e.stopPropagation()
+ var i = e.target.getAttribute && e.target.getAttribute("data-i")
+ if (i == null) return
+ var list = pullRoll()
+ var n = Number(i)
+ if (e.target.tagName == "BUTTON") {
+  var shown = document.getElementById("cam-big")
+  if (shown && shown.getAttribute("src") == list[n]) {
+   shown.className = ""
+   shown.removeAttribute("src")
+  }
+  list.splice(n, 1)
+  stashRoll(list)
+  showRoll()
+  return
+ }
+ var big = document.getElementById("cam-big")
+ if (!big || !list[n]) return
+ big.src = list[n]
+ big.className = "on"
+})
+showRoll()
 
 
 

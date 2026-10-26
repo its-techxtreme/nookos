@@ -52,6 +52,9 @@
 <div class="app-icon" id="open-set-tab">
 <p>Settings</p>
 </div>
+<div class="app-icon" id="open-cam-tab">
+<p>Camera</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -168,6 +171,21 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 <button type="button" data-wall="#d9a5e8">Lilac</button>
 <button type="button" data-wall="#8fde5d">Lime</button>
 </div>
+</div>
+<div id="cam" class="app-window" style="display:none;top:86px;left:300px">
+<div id="camheader" class="app-header">
+<p class="header-title">Camera</p>
+<button type="button" id="close-cam-tab" class="close-button"></button>
+</div>
+<video id="cam-view" autoplay playsinline></video>
+<img id="cam-big" alt="">
+<p id="cam-note"></p>
+<div id="cam-row">
+<button type="button" id="cam-go">Open</button>
+<button type="button" id="cam-snap">Snap</button>
+</div>
+<div id="cam-roll"></div>
+<canvas id="cam-grab"></canvas>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">
 <div id="animeheader" class="app-header">

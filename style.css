@@ -949,3 +949,87 @@ cursor: pointer
  filter: none;
  image-rendering: auto;
 }
+#open-cam-tab { width: 96px; }
+#open-cam-tab p { margin-left: 2px; margin-right: 2px; }
+#cam {
+ width: 360px;
+ height: auto;
+ background: #f0c230;
+}
+#cam-view {
+ display: block;
+ width: 92%;
+ margin: 10px auto 0;
+ background: #2a1810;
+ border: 3px solid #2a1810;
+ border-radius: 12px;
+ max-height: 220px;
+ object-fit: cover;
+}
+#cam-grab { display: none; }
+#cam-note {
+ min-height: 18px;
+ font-size: 14px;
+ margin-top: 6px;
+}
+#cam-row {
+ display: flex;
+ gap: 8px;
+ padding: 4px 12px 8px;
+}
+#cam-row button {
+ border: 3px solid #2a1810;
+ border-radius: 12px;
+ background: #fff6d8;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 15px;
+ padding: 6px 14px;
+ cursor: pointer;
+}
+#cam-roll {
+ display: flex;
+ flex-wrap: wrap;
+ gap: 8px;
+ padding: 4px 12px 14px;
+}
+#cam-roll img {
+ width: 72px;
+ height: 72px;
+ object-fit: cover;
+ border: 2px solid #2a1810;
+ border-radius: 8px;
+}
+#cam {
+ max-height: 72vh;
+ overflow: auto;
+}
+#cam-big {
+ display: none;
+ width: 92%;
+ margin: 8px auto 0;
+ border: 3px solid #2a1810;
+ border-radius: 12px;
+}
+#cam-big.on { display: block; }
+#cam-roll .shot { position: relative; }
+#cam-roll .shot button {
+ position: absolute;
+ top: -6px;
+ right: -6px;
+ width: 18px;
+ height: 18px;
+ padding: 0;
+ border: 2px solid #2a1810;
+ border-radius: 50%;
+ background: #ff6b6b;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ cursor: pointer;
+ line-height: 12px;
+}
+#cam-view { transform: scaleX(-1); }
+#cam-roll {
+ max-height: 168px;
+ overflow: auto;
+}

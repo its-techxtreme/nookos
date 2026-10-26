@@ -45,6 +45,10 @@ document.querySelector("#close-clock-tab").addEventListener("click", function() 
  desk.style.display = "block"
 })
 desk.addEventListener("click", function() {
+ if (desk.getAttribute("data-moved") == "1") {
+  desk.setAttribute("data-moved", "0")
+  return
+ }
  openWindow(clockScreen)
  desk.style.display = "none"
 })
@@ -66,6 +70,7 @@ function closeWindow(element) {
 }
 function openWindow(element) {
   element.style.display = "flex"
+  markBase(element)
   var mark = iconFor[element.id]
   if (mark) document.getElementById(mark).classList.remove("selected")
   tuck(element)
@@ -90,7 +95,8 @@ var iconFor = {
  calculator: "open-calculator-tab",
  music: "open-music-tab",
  browser: "open-browser-tab",
- pomo: "open-pomo-tab"
+ pomo: "open-pomo-tab",
+ settings: "open-set-tab"
 }
 
 // old zoom used data-big and slid under the bar
@@ -171,6 +177,8 @@ function getNotes() {
 }
 function saveNotes(notes) {
  localStorage.setItem("nook-stickies", JSON.stringify(notes))
+ var face = document.getElementById("desknotes-read")
+ if (face) face.textContent = String(notes.length)
 }
 function createNoteElement(id, content) {
  var element = document.createElement("textarea")
@@ -249,10 +257,10 @@ var nextSongButton = document.getElementById("next-song")
 var shuffleButton = document.getElementById("shuffle-song")
 var replayButton = document.getElementById("replay-song")
 var songs = [
- { image: "pics/1.png", name: "window rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
- { image: "pics/2.png", name: "old tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
- { image: "pics/3.png", name: "late night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
- { image: "pics/1.png", name: "porch air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
+ { image: "pics/1.png", name: "Window Rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+ { image: "pics/2.png", name: "Old Tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+ { image: "pics/3.png", name: "Late Night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+ { image: "pics/1.png", name: "Porch Air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
 ]
 var audio = document.createElement("audio")
 var currentSongIndex = 0
@@ -292,6 +300,8 @@ function updateSong() {
  var song = songs[currentSongIndex]
  songImage.src = song.image
  songName.innerText = song.name
+ var face = document.getElementById("deskmusic-read")
+ if (face) face.textContent = song.name
  songArtist.innerText = song.artist
  audio.pause()
  audio.src = song.audio
@@ -323,6 +333,16 @@ document.querySelector("#close-pomo-tab").addEventListener("click", function() {
 document.querySelector("#open-pomo-tab").addEventListener("click", function() { openWindow(pomoScreen) })
 pomoScreen.addEventListener("mousedown", function() { tap(pomoScreen) })
 
+var setScreen = document.querySelector("#settings")
+document.querySelector("#close-set-tab").addEventListener("click", function() { closeWindow(setScreen) })
+document.querySelector("#open-set-tab").addEventListener("click", function() { openWindow(setScreen) })
+setScreen.addEventListener("mousedown", function() { tap(setScreen) })
+document.getElementById("walls").addEventListener("click", function(e) {
+ var kind = e.target.getAttribute && e.target.getAttribute("data-wall")
+ if (!kind) return
+ setWall(kind)
+})
+
 var startButton = document.getElementById("start")
 var stopButton = document.getElementById("stop")
 var resetButton = document.getElementById("reset")
@@ -334,6 +354,8 @@ function updateTimer() {
  var seconds = timeLeft % 60
  if (seconds < 10) seconds = "0" + seconds
  pomoTimer.innerHTML = minutes + ":" + seconds
+ var face = document.getElementById("desktimer-read")
+ if (face) face.textContent = minutes + ":" + seconds
 }
 function startTimer() {
  if (interval) return
@@ -425,6 +447,7 @@ function swell(el) {
   el.classList.remove("big")
   el.style.removeProperty("--sc")
   s.big = 0
+  grow(el)
   lift(el)
   return
  }
@@ -584,9 +607,12 @@ function tuck(el) {
  var want = 320
  if (el.id == "notes" || el.id == "calculator") want = 460
  if (el.id == "browser" || el.id == "anime" || el.id == "clock") want = 400
- if (el.id == "pomo" || el.id == "welcome") want = 260
+ if (el.id == "pomo") want = 220
+ if (el.id == "settings") want = 280
+ if (el.id == "welcome") want = 0
  if (want > room) want = room
- el.style.height = want + "px"
+ if (want) el.style.height = want + "px"
+ grow(el)
 }
 
 var phone = narrow() ? 1 : 0
@@ -671,6 +697,7 @@ document.addEventListener("mousedown", function(e) {
  if (!el || String(el.className).indexOf("app-window") == -1) return
  e.preventDefault()
  e.stopPropagation()
+ if (String(el.className).indexOf("big") == -1) markBase(el)
  unbig(el)
  var cs = getComputedStyle(el)
  rs = {
@@ -721,11 +748,54 @@ function mins(id) {
  return { w: 200, h: 150 }
 }
 
+function markBase(el) {
+ var s = slot(el)
+ if (!s || s.baseW) return
+ if (el.clientWidth < 40) return
+ var head = el.querySelector(".app-header")
+ var hh = head ? head.offsetHeight : 40
+ var fit = el.querySelector(".fit")
+ var content = fit ? fit.scrollHeight : 0
+ if (content < 24) content = el.clientHeight - hh
+ if (content < 24) content = 24
+ s.baseW = el.clientWidth
+ s.baseH = content + hh
+}
+
+function grow(el) {
+ var s = slot(el)
+ if (!s || !s.baseW) return
+ if (String(el.className).indexOf("big") != -1) return
+ if (el.id == "browser" || el.id == "notes") {
+  el.style.setProperty("--sc", "1")
+  if (el.id == "browser") {
+   var frame = document.getElementById("web-frame")
+   var bar = document.getElementById("web-bar")
+   var top = el.querySelector(".app-header")
+   var used = (top ? top.offsetHeight : 40) + (bar ? bar.offsetHeight : 40) + 8
+   if (frame) frame.style.height = Math.max(120, el.clientHeight - used) + "px"
+  }
+  return
+ }
+ var fit = el.querySelector(".fit")
+ if (fit) fit.style.width = s.baseW + "px"
+ var head = el.querySelector(".app-header")
+ var hh = head ? head.offsetHeight : 40
+ var bh = s.baseH - hh
+ if (bh < 30) bh = s.baseH
+ var sx = el.clientWidth / s.baseW
+ var sy = (el.clientHeight - hh) / bh
+ var sc = sx < sy ? sx : sy
+ if (sc < 0.45) sc = 0.45
+ el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
+}
+
 function place(el, l, t, w, h) {
  el.style.left = Math.round(l) + "px"
  el.style.top = Math.round(t) + "px"
  el.style.width = Math.round(w) + "px"
  el.style.height = Math.round(h) + "px"
+ grow(el)
 }
 
 function dragSize(e) {
@@ -807,6 +877,394 @@ document.addEventListener("touchend", function() {
  rs = null
 })
 
+function stashWidgets() {
+ var bag = {}
+ var nodes = document.querySelectorAll("#deskclock, .dy")
+ var i
+ for (i = 0; i < nodes.length; i++) {
+  var el = nodes[i]
+  var rec = { l: el.style.left, t: el.style.top }
+  rec.gone = el.style.display == "none" ? 1 : 0
+  rec.lock = el.getAttribute("data-lock") == "1" ? 1 : 0
+  rec.paint = el.style.background || ""
+  var input = el.querySelector("input")
+  if (input) rec.text = input.value
+  bag[el.id] = rec
+ }
+ try {
+  localStorage.setItem("nook-widgets", JSON.stringify(bag))
+ } catch (err) {
+  console.log(err)
+ }
+}
+
+function pullWidgets() {
+ var raw
+ try { raw = localStorage.getItem("nook-widgets") } catch (err) { return }
+ if (!raw) return
+ var bag
+ try { bag = JSON.parse(raw) } catch (err) { return }
+ var id
+ for (id in bag) {
+  var el = document.getElementById(id)
+  if (!el || !bag[id]) continue
+  if (bag[id].l && bag[id].l.indexOf("px") != -1) {
+   el.style.left = bag[id].l
+   el.style.right = "auto"
+  }
+  if (bag[id].t) el.style.top = bag[id].t
+  if (bag[id].text) {
+   var input = el.querySelector("input")
+   if (input) input.value = bag[id].text
+  }
+  if (bag[id].gone) el.style.display = "none"
+  if (bag[id].lock) {
+   el.setAttribute("data-lock", "1")
+   var lk = el.querySelectorAll(".wg button:not(.sw)")
+   if (lk[0]) lk[0].textContent = "Free"
+  }
+  if (bag[id].paint) el.style.background = bag[id].paint
+ }
+}
+
+function shove(el) {
+ if (!el) return
+ var sx = 0
+ var sy = 0
+ var ox = 0
+ var oy = 0
+ var on = 0
+ function down(x, y) {
+  if (el.getAttribute("data-lock") == "1") return
+  sx = x
+  sy = y
+  ox = el.offsetLeft
+  oy = el.offsetTop
+  on = 1
+ }
+ el.addEventListener("mousedown", function(e) {
+  if (e.button && e.button != 0) return
+  down(e.clientX, e.clientY)
+ })
+ el.addEventListener("touchstart", function(e) {
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  down(p.clientX, p.clientY)
+ }, { passive: true })
+ document.addEventListener("mousemove", function(e) {
+  if (!on) return
+  var nx = ox + e.clientX - sx
+  var ny = oy + e.clientY - sy
+  if (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4) el.setAttribute("data-moved", "1")
+  if (nx < 8) nx = 8
+  if (ny < 36) ny = 36
+  if (nx > window.innerWidth - 80) nx = window.innerWidth - 80
+  if (ny > window.innerHeight - 40) ny = window.innerHeight - 40
+  el.style.right = "auto"
+  el.style.left = nx + "px"
+  el.style.top = ny + "px"
+ })
+ document.addEventListener("touchmove", function(e) {
+  if (!on) return
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  var nx = ox + p.clientX - sx
+  var ny = oy + p.clientY - sy
+  if (Math.abs(p.clientX - sx) > 4 || Math.abs(p.clientY - sy) > 4) el.setAttribute("data-moved", "1")
+  if (nx < 8) nx = 8
+  if (ny < 36) ny = 36
+  if (nx > window.innerWidth - 80) nx = window.innerWidth - 80
+  if (ny > window.innerHeight - 40) ny = window.innerHeight - 40
+  el.style.right = "auto"
+  el.style.left = nx + "px"
+  el.style.top = ny + "px"
+ }, { passive: true })
+ document.addEventListener("mouseup", function() {
+  if (!on) return
+  on = 0
+  stashWidgets()
+ })
+ document.addEventListener("touchend", function() {
+  if (!on) return
+  on = 0
+  stashWidgets()
+ })
+}
+
+function makeDate() {
+ if (document.getElementById("deskdate")) return
+ var d = document.createElement("div")
+ d.id = "deskdate"
+ d.className = "dy"
+ var now = new Date()
+ var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
+ var days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+ var mo = document.createElement("b")
+ mo.textContent = days[now.getDay()]
+ var num = document.createElement("span")
+ num.textContent = now.getDate()
+ var sub = document.createElement("div")
+ sub.className = "sub"
+ sub.textContent = months[now.getMonth()]
+ d.appendChild(mo)
+ d.appendChild(num)
+ d.appendChild(sub)
+ document.body.appendChild(d)
+ shove(d)
+ peg(d)
+}
+
+function peg(el) {
+ if (!el || el.querySelector(".wg")) return
+ var bar = document.createElement("div")
+ bar.className = "wg"
+ var lock = document.createElement("button")
+ lock.type = "button"
+ lock.textContent = "Fix"
+ lock.addEventListener("click", function(e) {
+  e.stopPropagation()
+  if (el.getAttribute("data-lock") == "1") {
+   el.removeAttribute("data-lock")
+   lock.textContent = "Fix"
+  } else {
+   el.setAttribute("data-lock", "1")
+   lock.textContent = "Free"
+  }
+  stashWidgets()
+ })
+ var hide = document.createElement("button")
+ hide.type = "button"
+ hide.textContent = "Hide"
+ hide.addEventListener("click", function(e) {
+  e.stopPropagation()
+  el.style.display = "none"
+  bar.style.display = "none"
+  stashWidgets()
+ })
+ var paints = ["#ff6b6b", "#f0c230", "#4ecdc4", "#d9a5e8", "#8fde5d"]
+ var i
+ for (i = 0; i < paints.length; i++) {
+  var sw = document.createElement("button")
+  sw.type = "button"
+  sw.className = "sw"
+  sw.style.background = paints[i]
+  sw.addEventListener("click", function(e) {
+   e.stopPropagation()
+   el.style.background = this.style.background
+   stashWidgets()
+  })
+  bar.appendChild(sw)
+ }
+ bar.appendChild(lock)
+ bar.appendChild(hide)
+ el.appendChild(bar)
+ el.addEventListener("contextmenu", function(e) {
+  e.preventDefault()
+  e.stopPropagation()
+  bar.style.display = bar.style.display == "block" ? "none" : "block"
+ })
+}
+
+function chipFace(id, title, top, app) {
+ var el = document.createElement("div")
+ el.id = id
+ el.className = "dy chip"
+ el.style.top = top + "px"
+ el.style.right = "16px"
+ var k = document.createElement("b")
+ k.textContent = title
+ var v = document.createElement("span")
+ v.id = id + "-read"
+ el.appendChild(k)
+ el.appendChild(v)
+ document.body.appendChild(el)
+ shove(el)
+ peg(el)
+ el.addEventListener("click", function() {
+  if (el.getAttribute("data-moved") == "1") {
+   el.setAttribute("data-moved", "0")
+   return
+  }
+  var win = document.getElementById(app)
+  if (win) openWindow(win)
+ })
+ return el
+}
+
+function makeChips() {
+ chipFace("desktimer", "Timer", 300, "pomo")
+ document.getElementById("desktimer-read").textContent = "25:00"
+ chipFace("deskmusic", "Music", 368, "music")
+ document.getElementById("deskmusic-read").textContent = songs[0].name
+ var pin = document.createElement("div")
+ pin.id = "deskpin"
+ pin.className = "dy chip"
+ pin.style.top = "436px"
+ pin.style.right = "16px"
+ var lab = document.createElement("b")
+ lab.textContent = "Pin"
+ var box = document.createElement("input")
+ box.id = "deskpin-box"
+ box.placeholder = "Write something"
+ pin.appendChild(lab)
+ pin.appendChild(box)
+ document.body.appendChild(pin)
+ shove(pin)
+ peg(pin)
+ box.addEventListener("mousedown", function(e) { e.stopPropagation() })
+ box.addEventListener("change", stashWidgets)
+ chipFace("desknotes", "Notes", 504, "notes")
+ var nr = document.getElementById("desknotes-read")
+ if (nr) nr.textContent = String(getNotes().length)
+ var photo = document.createElement("div")
+ photo.id = "deskphoto"
+ photo.className = "dy po"
+ photo.style.top = "70px"
+ photo.style.right = "240px"
+ photo.style.left = "auto"
+ var tack = document.createElement("div")
+ tack.className = "tk"
+ var img = document.createElement("img")
+ img.src = "pics/4.png"
+ img.alt = ""
+ var n = 4
+ var next = document.createElement("button")
+ next.type = "button"
+ next.textContent = "Next"
+ next.addEventListener("click", function(e) {
+  e.stopPropagation()
+  n = n + 1
+  if (n > 11) n = 1
+  img.src = "pics/" + n + ".png"
+ })
+ var cap = document.createElement("div")
+ cap.className = "cap"
+ cap.textContent = "Anime"
+ photo.appendChild(tack)
+ photo.appendChild(img)
+ photo.appendChild(cap)
+ photo.appendChild(next)
+ document.body.appendChild(photo)
+ shove(photo)
+ peg(photo)
+ photo.addEventListener("click", function() {
+  if (photo.getAttribute("data-moved") == "1") {
+   photo.setAttribute("data-moved", "0")
+   return
+  }
+  openWindow(document.getElementById("anime"))
+ })
+ stackChips()
+ if (typeof updateTimer == "function") updateTimer()
+}
+
+function stackChips() {
+ var ids = ["desktimer", "deskmusic", "deskpin", "desknotes"]
+ var y = 300
+ var date = document.getElementById("deskdate")
+ if (date) y = date.offsetTop + date.offsetHeight + 12
+ var i
+ for (i = 0; i < ids.length; i++) {
+  var el = document.getElementById(ids[i])
+  if (!el) continue
+  if (el.style.left) continue
+  el.style.top = y + "px"
+  y = y + el.offsetHeight + 10
+ }
+}
+
+function makeMenu() {
+ var box = document.createElement("div")
+ box.id = "deskmenu"
+ var names = [
+  ["welcome", "Welcome"],
+  ["anime", "Anime"],
+  ["notes", "Notes"],
+  ["calculator", "Calc"],
+  ["music", "Music"],
+  ["browser", "Web"],
+  ["pomo", "Timer"],
+  ["clock", "Clock"],
+  ["settings", "Settings"]
+ ]
+ var i
+ for (i = 0; i < names.length; i++) {
+  var b = document.createElement("button")
+  b.type = "button"
+  b.textContent = names[i][1]
+  b.setAttribute("data-app", names[i][0])
+  box.appendChild(b)
+ }
+ var bits = [
+  ["deskclock", "Clock"],
+  ["deskdate", "Date"],
+  ["desktimer", "Timer"],
+  ["deskmusic", "Music"],
+  ["deskpin", "Pin"],
+  ["desknotes", "Notes"],
+  ["deskphoto", "Photo"]
+ ]
+ var list = document.createElement("div")
+ list.id = "wglist"
+ var toggle = document.createElement("button")
+ toggle.type = "button"
+ toggle.textContent = "Widgets"
+ toggle.addEventListener("click", function(e) {
+  e.stopPropagation()
+  list.style.display = list.style.display == "block" ? "none" : "block"
+ })
+ box.appendChild(toggle)
+ for (i = 0; i < bits.length; i++) {
+  var show = document.createElement("button")
+  show.type = "button"
+  show.textContent = bits[i][1]
+  show.setAttribute("data-bit", bits[i][0])
+  show.addEventListener("click", function(e) {
+   e.stopPropagation()
+   var id = this.getAttribute("data-bit")
+   var node = document.getElementById(id)
+   if (!node) return
+   node.style.display = ""
+   stashWidgets()
+  })
+  list.appendChild(show)
+ }
+ box.appendChild(list)
+ document.body.appendChild(box)
+ box.addEventListener("click", function(e) {
+  var id = e.target.getAttribute && e.target.getAttribute("data-app")
+  if (!id) return
+  var win = document.getElementById(id)
+  if (win) openWindow(win)
+  if (id == "clock" && desk) desk.style.display = "none"
+  box.style.display = "none"
+ })
+ document.addEventListener("contextmenu", function(e) {
+  var t = e.target
+  if (t.closest && t.closest(".app-window, .app-icon, .dy, #deskclock, #deskmenu, #taskbar")) return
+  e.preventDefault()
+  box.setAttribute("data-hold", "1")
+  box.style.left = e.clientX + "px"
+  box.style.top = e.clientY + "px"
+  box.style.display = "block"
+ })
+ document.addEventListener("click", function(e) {
+  if (box.getAttribute("data-hold") == "1") {
+   box.setAttribute("data-hold", "0")
+   return
+  }
+  if (e.target && e.target.closest && e.target.closest("#deskmenu")) return
+  box.style.display = "none"
+ })
+}
+
+shove(desk)
+peg(desk)
+makeDate()
+makeChips()
+pullWidgets()
+makeMenu()
+
 function boot() {
  var list = document.querySelectorAll(".app-window")
  var i
@@ -818,8 +1276,41 @@ function boot() {
   grab(list[i])
  }
  pile()
+ var j
+ for (j = 0; j < list.length; j++) {
+  if (getComputedStyle(list[j]).display == "none") continue
+  markBase(list[j])
+  grow(list[j])
+ }
 }
 boot()
+
+function setWall(kind) {
+ var bg = document.getElementById("background")
+ if (!bg) return
+ if (!kind || kind == "sofa") {
+  bg.className = ""
+  bg.style.backgroundColor = ""
+  kind = "sofa"
+ } else {
+  bg.className = "flat"
+  bg.style.backgroundColor = kind
+ }
+ var btns = document.querySelectorAll("#walls button")
+ var i
+ for (i = 0; i < btns.length; i++) {
+  if (btns[i].getAttribute("data-wall") == kind) btns[i].className = "on"
+  else btns[i].className = ""
+ }
+ try {
+  localStorage.setItem("nook-wall", kind)
+ } catch (err) {
+  console.log(err)
+ }
+}
+var kept = "sofa"
+try { kept = localStorage.getItem("nook-wall") || "sofa" } catch (err) { console.log(err) }
+setWall(kept)
 
 
 

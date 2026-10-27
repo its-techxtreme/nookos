@@ -833,7 +833,7 @@ cursor: pointer
  font-family: Fredoka, Arial, sans-serif;
  cursor: pointer;
 }
-.sw {
+span.sw {
  width: 16px;
  height: 16px;
  padding: 0;
@@ -1253,7 +1253,7 @@ cursor: pointer
 #own-lab.on, .set-row button.on, #curve-go.on { background: #f0c230; }
 .set-row { padding: 0 4px 8px; }
 #set-note { font-size: 14px; min-height: 18px; }
-#background.own {
+#background.own, #background.anime {
  background-size: cover;
  background-repeat: no-repeat;
  background-position: center;
@@ -1457,6 +1457,50 @@ body.curvy #welcome { border-radius: 22px; }
  max-height: 78vh;
  overflow: auto;
 }
+#settings { background: #fff6d8; }
+#set-body { padding: 12px 12px 14px; }
+.sg {
+ background: #fffaf2;
+ border: 3px solid #2a1810;
+ border-radius: 18px;
+ padding: 8px 10px 10px;
+ margin-bottom: 10px;
+}
+.sk { margin: 0 0 8px; font-size: 14px; color: #6a5344; }
+#walls { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0; }
+#walls button {
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+ gap: 4px;
+ margin: 0;
+ padding: 6px 4px 7px;
+ font-size: 13px;
+}
+.dab { width: 36px; height: 22px; border-radius: 8px; border: 2px solid #2a1810; display: block; }
+.dab.sofa { background: #e7c89a url("images/sofa.jpg") center/cover; }
+.dab.anime { background: #e7c89a url("images/anime.jpg") center/cover; }
+.dab.must { background: #f0c230; }
+.dab.aqua { background: #4ecdc4; }
+.dab.lil { background: #d9a5e8; }
+.dab.lime { background: #8fde5d; }
+#walls button.on, .set-row button.on, #curve-go.on, #own-lab.on {
+ background: #f0c230;
+ box-shadow: 3px 3px 0 #2a1810;
+}
+.set-row { display: flex; gap: 6px; padding: 0; }
+.set-row button { flex: 1; margin: 0; }
+#own-lab { display: block; margin: 8px 0 0; text-align: center; }
+#curve-go { display: block; width: 100%; margin: 0; }
+#fonts button[data-font="plain"] { font-family: Arial, Helvetica, sans-serif; }
+#fonts button[data-font="story"] { font-family: Georgia, "Times New Roman", serif; }
+#set-note { margin: 2px 4px 0; }
+.grip { background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.grip.n, .grip.s { left: 14px; right: 14px; height: 8px; }
+.grip.e, .grip.w { top: 14px; bottom: 14px; width: 8px; }
+.grip.nw, .grip.ne, .grip.sw, .grip.se { width: 14px; height: 14px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
+.grip.nw { left: 0; top: 0; cursor: nwse-resize; }
+.app-window.big .grip { display: none; }
 
 
 

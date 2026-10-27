@@ -351,12 +351,23 @@ var nextSongButton = document.getElementById("next-song")
 var shuffleButton = document.getElementById("shuffle-song")
 var replayButton = document.getElementById("replay-song")
 var songs = [
- { image: "pics/6.png", name: "Window Rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
- { image: "pics/8.png", name: "Old Tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
- { image: "pics/10.png", name: "Late Night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
- { image: "pics/11.png", name: "Porch Air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
+ { image: "pics/6.png", name: "Window Rain", artist: "Athan", audio: "sounds/rain.mp3" },
+ { image: "pics/8.png", name: "Old Tape", artist: "Athan", audio: "sounds/tape.mp3" },
+ { image: "pics/10.png", name: "Late Night", artist: "Athan", audio: "sounds/night.mp3" },
+ { image: "pics/11.png", name: "Porch Air", artist: "Athan", audio: "sounds/air.mp3" }
 ]
 var audio = document.createElement("audio")
+audio.volume = 1
+var ears = null
+function wake() {
+ var Ctx = window.AudioContext || window.webkitAudioContext
+ if (!ears) {
+  ears = new Ctx()
+  var src = ears.createMediaElementSource(audio)
+  src.connect(ears.destination)
+ }
+ if (ears.state == "suspended") return ears.resume()
+}
 var currentSongIndex = 0
 var songRepeat = false
 updateSong()
@@ -375,8 +386,13 @@ playpauseButton.addEventListener("click", function() {
   audio.pause()
   playpauseButton.innerHTML = "play"
  } else {
-  audio.play().catch(function(e) { console.log(e) })
+  wake()
+  var kick = audio.play()
   playpauseButton.innerHTML = "pause"
+  if (kick && kick.catch) kick.catch(function() {
+   playpauseButton.innerHTML = "play"
+   songArtist.innerText = "no sound"
+  })
  }
 })
 shuffleButton.addEventListener("click", function() {
@@ -439,7 +455,8 @@ document.querySelector("#open-wig-tab").addEventListener("click", function() {
 })
 wigScreen.addEventListener("mousedown", function() { tap(wigScreen) })
 document.getElementById("walls").addEventListener("click", function(e) {
- var kind = e.target.getAttribute && e.target.getAttribute("data-wall")
+ var t = e.target && e.target.closest ? e.target.closest("button") : e.target
+ var kind = t && t.getAttribute && t.getAttribute("data-wall")
  if (!kind) return
  setWall(kind)
 })
@@ -498,30 +515,33 @@ function paintFlip() {
 function updateTimer() {
  paintFlip()
 }
+var alarm = null
 function beep() {
+ if (alarm) return
  try {
   var Ctx = window.AudioContext || window.webkitAudioContext
   var ctx = new Ctx()
-  var t = ctx.currentTime
-  var i
-  for (i = 0; i < 4; i++) {
-   var o = ctx.createOscillator()
-   var g = ctx.createGain()
-   o.type = "square"
-   o.frequency.value = i % 2 ? 660 : 880
-   g.gain.setValueAtTime(0.001, t + i * 0.38)
-   g.gain.exponentialRampToValueAtTime(0.4, t + i * 0.38 + 0.02)
-   g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.38 + 0.28)
-   o.connect(g)
-   g.connect(ctx.destination)
-   o.start(t + i * 0.38)
-   o.stop(t + i * 0.38 + 0.3)
-  }
+  var o = ctx.createOscillator()
+  var g = ctx.createGain()
+  o.type = "square"
+  o.frequency.value = 880
+  g.gain.value = 0.22
+  o.connect(g)
+  g.connect(ctx.destination)
+  o.start()
+  alarm = { ctx: ctx, o: o }
  } catch (err) {
   if (pomoTimer) pomoTimer.setAttribute("data-ding", "1")
  }
 }
+function hush() {
+ if (!alarm) return
+ try { alarm.o.stop() } catch (err) {}
+ try { alarm.ctx.close() } catch (err) {}
+ alarm = null
+}
 function startTimer() {
+ hush()
  if (interval) return
  if (!going) {
   timeLeft = readSet()
@@ -545,10 +565,12 @@ function startTimer() {
 function stopTimer() {
  clearInterval(interval)
  interval = null
+ hush()
 }
 function resetTimer() {
  clearInterval(interval)
  interval = null
+ hush()
  going = 0
  timeLeft = readSet()
  if (!timeLeft) timeLeft = setFor || 1500
@@ -846,7 +868,7 @@ function wrap(el) {
 
 function grips(el) {
  if (el.querySelector(".grip")) return
- var sides = ["n", "e", "s", "w", "se", "sw", "ne"]
+ var sides = ["n", "e", "s", "w", "se", "sw", "ne", "nw"]
  var i
  for (i = 0; i < sides.length; i++) {
   var g = document.createElement("div")
@@ -1002,24 +1024,24 @@ function dragSize(e) {
  var minH = fl.h
  if (d == "e" || d == "ne" || d == "se") w = rs.w + dx
  if (d == "s" || d == "se" || d == "sw") h = rs.h + dy
- if (d == "w" || d == "sw") {
+ if (d == "w" || d == "sw" || d == "nw") {
   w = rs.w - dx
   l = rs.l + dx
  }
- if (d == "n" || d == "ne") {
+ if (d == "n" || d == "ne" || d == "nw") {
   h = rs.h - dy
   t = rs.t + dy
  }
  if (w < minW) {
-  if (d == "w" || d == "sw") l = rs.l + (rs.w - minW)
+  if (d == "w" || d == "sw" || d == "nw") l = rs.l + (rs.w - minW)
   w = minW
  }
  if (h < minH) {
-  if (d == "n" || d == "ne") t = rs.t + (rs.h - minH)
+  if (d == "n" || d == "ne" || d == "nw") t = rs.t + (rs.h - minH)
   h = minH
  }
  if (t < 38) {
-  if (d == "n" || d == "ne") h = h - (38 - t)
+  if (d == "n" || d == "ne" || d == "nw") h = h - (38 - t)
   if (h < minH) h = minH
   t = 38
  }
@@ -1036,7 +1058,7 @@ function dragSize(e) {
   else t = maxB - h
  }
  if (l < 0) {
-  if (d == "w" || d == "sw") w = w + l
+  if (d == "w" || d == "sw" || d == "nw") w = w + l
   l = 0
  }
  if (w < minW) {
@@ -1604,7 +1626,12 @@ function setWall(kind) {
  if (!kind || kind == "sofa") {
   bg.className = ""
   bg.style.backgroundColor = ""
+  bg.style.backgroundImage = ""
   kind = "sofa"
+ } else if (kind == "anime") {
+  bg.className = "anime"
+  bg.style.backgroundColor = ""
+  bg.style.backgroundImage = "url(images/anime.jpg)"
  } else if (kind == "pic") {
   var pic = ""
   try { pic = localStorage.getItem("nook-pic") || "" } catch (err) { console.log(err) }
@@ -1679,11 +1706,15 @@ function paintLook(look) {
  markRow("#fonts button", "data-font", look.font)
  markRow("#cols button", "data-cols", look.cols)
  var curve = document.getElementById("curve-go")
- if (curve) curve.className = look.curve ? "on" : ""
+ if (curve) {
+  curve.className = look.curve ? "on" : ""
+  curve.textContent = look.curve ? "Curvy corners are on" : "Curvy corners are off"
+ }
  layIcons()
 }
 document.getElementById("settings").addEventListener("click", function(e) {
  var t = e.target
+ if (t && t.closest) t = t.closest("button")
  if (!t || !t.getAttribute) return
  var look = readLook()
  if (t.getAttribute("data-theme")) look.theme = t.getAttribute("data-theme")

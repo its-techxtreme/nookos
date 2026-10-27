@@ -208,42 +208,56 @@ You can drag the windows, keep notes, snap a photo, run a timer, and pin widgets
 <p class="header-title">Settings</p>
 <button type="button" id="close-set-tab" class="close-button"></button>
 </div>
-<p>Wallpaper</p>
+<div id="set-body">
+<section class="sg">
+<p class="sk">Wallpaper</p>
 <div id="walls">
-<button type="button" data-wall="sofa">Sofa</button>
-<button type="button" data-wall="#ff6b6b">Coral</button>
-<button type="button" data-wall="#f0c230">Mustard</button>
-<button type="button" data-wall="#4ecdc4">Aqua</button>
-<button type="button" data-wall="#d9a5e8">Lilac</button>
-<button type="button" data-wall="#8fde5d">Lime</button>
+<button type="button" data-wall="sofa"><span class="dab sofa"></span>Sofa</button>
+<button type="button" data-wall="anime"><span class="dab anime"></span>Anime</button>
+<button type="button" data-wall="#f0c230"><span class="dab must"></span>Mustard</button>
+<button type="button" data-wall="#4ecdc4"><span class="dab aqua"></span>Aqua</button>
+<button type="button" data-wall="#d9a5e8"><span class="dab lil"></span>Lilac</button>
+<button type="button" data-wall="#8fde5d"><span class="dab lime"></span>Lime</button>
 </div>
 <label id="own-lab">Your picture<input id="own-pic" type="file" accept="image/*"></label>
-<p>Theme</p>
+</section>
+<section class="sg">
+<p class="sk">Theme</p>
 <div class="set-row" id="themes">
 <button type="button" data-theme="nook">Nook</button>
 <button type="button" data-theme="night">Night</button>
 <button type="button" data-theme="candy">Candy</button>
 </div>
-<p>Text</p>
+</section>
+<section class="sg">
+<p class="sk">Text</p>
 <div class="set-row" id="sizes">
 <button type="button" data-size="s">Small</button>
 <button type="button" data-size="m">Normal</button>
 <button type="button" data-size="b">Big</button>
 </div>
-<p>Font</p>
+</section>
+<section class="sg">
+<p class="sk">Font</p>
 <div class="set-row" id="fonts">
 <button type="button" data-font="fred">Fredoka</button>
 <button type="button" data-font="plain">Plain</button>
 <button type="button" data-font="story">Story</button>
 </div>
-<p>Icons</p>
+</section>
+<section class="sg">
+<p class="sk">Icons</p>
 <div class="set-row" id="cols">
 <button type="button" data-cols="2">Two columns</button>
 <button type="button" data-cols="1">One column</button>
 </div>
-<p>Corners</p>
-<button type="button" id="curve-go">Curvy corners</button>
+</section>
+<section class="sg">
+<p class="sk">Corners</p>
+<button type="button" id="curve-go">Curvy corners are off</button>
+</section>
 <p id="set-note"></p>
+</div>
 </div>
 <div id="widgets" class="app-window" style="display:none;top:80px;left:220px">
 <div id="widgetsheader" class="app-header">

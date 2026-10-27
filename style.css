@@ -1111,6 +1111,75 @@ cursor: pointer
  color: #2a1810;
  box-shadow: inset 0 -28px 0 #fff6d8;
 }
+#notes-content {
+ display: flex;
+ grid-template-columns: none;
+ padding: 0;
+ height: 460px;
+ overflow: hidden;
+}
+#note-side {
+ width: 168px;
+ background: #fff6d8;
+ border-right: 3px solid #2a1810;
+ overflow: auto;
+ flex: none;
+}
+#new-note-button.add-note {
+ width: auto;
+ height: auto;
+ font-size: 15px;
+ margin: 8px;
+ padding: 6px 10px;
+ border: 2px solid #2a1810;
+ border-radius: 10px;
+ background: #8fde5d;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+}
+#note-list button {
+ display: block;
+ width: calc(100% - 16px);
+ margin: 0 8px 6px;
+ text-align: left;
+ background: #fffaf2;
+ color: #2a1810;
+ border: 2px solid #2a1810;
+ border-radius: 10px;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 14px;
+ padding: 8px;
+ cursor: pointer;
+}
+#note-list button.on { background: #f0c230; }
+#note-paper {
+ flex: 1;
+ display: flex;
+ flex-direction: column;
+ background: #fffaf2;
+ min-width: 0;
+}
+#note-body {
+ flex: 1;
+ border: 0;
+ resize: none;
+ background: transparent;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 16px;
+ padding: 12px;
+ outline: none;
+}
+#note-tools { padding: 8px; }
+#note-drop {
+ background: #ff6b6b;
+ color: #2a1810;
+ border: 2px solid #2a1810;
+ border-radius: 10px;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 4px 10px;
+ cursor: pointer;
+}
 #anime {
  max-height: 78vh;
  overflow: auto;

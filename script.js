@@ -179,13 +179,9 @@ pickBtns[0].classList.add("on")
 
 var notesContainer = document.getElementById("notes-content")
 var addNoteButton = document.getElementById("new-note-button")
-
-getNotes().forEach(function(note) {
- var noteElement = createNoteElement(note.id, note.content)
- notesContainer.insertBefore(noteElement, addNoteButton)
-})
-
-addNoteButton.addEventListener("click", function() { addNote() })
+var noteBody = document.getElementById("note-body")
+var noteList = document.getElementById("note-list")
+var curNote = null
 
 function getNotes() {
  return JSON.parse(localStorage.getItem("nook-stickies") || "[]")
@@ -195,6 +191,47 @@ function saveNotes(notes) {
  var face = document.getElementById("desknotes-read")
  if (face) face.textContent = String(notes.length)
 }
+function paintNotes() {
+ noteList.innerHTML = ""
+ var notes = getNotes()
+ var i
+ for (i = 0; i < notes.length; i++) {
+  var b = document.createElement("button")
+  b.type = "button"
+  var line = (notes[i].content || "").split("\n")[0]
+  b.textContent = line || "Empty note"
+  b.setAttribute("data-id", notes[i].id)
+  if (String(notes[i].id) == String(curNote)) b.className = "on"
+  noteList.appendChild(b)
+ }
+}
+function showNote(id) {
+ var notes = getNotes()
+ var i
+ var found = null
+ for (i = 0; i < notes.length; i++) {
+  if (String(notes[i].id) == String(id)) found = notes[i]
+ }
+ if (!found) return
+ curNote = found.id
+ noteBody.value = found.content || ""
+ paintNotes()
+}
+noteList.addEventListener("click", function(e) {
+ var id = e.target.getAttribute && e.target.getAttribute("data-id")
+ if (!id) return
+ showNote(id)
+})
+noteBody.addEventListener("input", function() {
+ if (curNote == null) return
+ updateNote(curNote, noteBody.value)
+ var on = noteList.querySelector(".on")
+ if (!on) return
+ var line = noteBody.value.split("\n")[0]
+ on.textContent = line || "Empty note"
+})
+addNoteButton.addEventListener("click", function() { addNote() })
+
 function createNoteElement(id, content) {
  var element = document.createElement("textarea")
  element.classList.add("note")
@@ -217,22 +254,40 @@ function addNote() {
   id: Math.floor(Math.random() * 100000),
   content: ""
  }
- var noteElement = createNoteElement(noteObject.id, noteObject.content)
- notesContainer.insertBefore(noteElement, addNoteButton)
- notes.push(noteObject)
+ notes.unshift(noteObject)
  saveNotes(notes)
+ curNote = noteObject.id
+ noteBody.value = ""
+ paintNotes()
+ noteBody.focus()
 }
 function updateNote(id, newContent) {
  var notes = getNotes()
  var targetNote = notes.filter(function(note) { return note.id == id })[0]
+ if (!targetNote) return
  targetNote.content = newContent
  saveNotes(notes)
 }
 function deleteNote(id, element) {
  var notes = getNotes().filter(function(note) { return note.id != id })
  saveNotes(notes)
- notesContainer.removeChild(element)
+ if (element && element.parentNode) element.parentNode.removeChild(element)
 }
+document.getElementById("note-drop").addEventListener("click", function() {
+ if (curNote == null) return
+ deleteNote(curNote)
+ var left = getNotes()
+ if (!left.length) {
+  curNote = null
+  noteBody.value = ""
+  paintNotes()
+  return
+ }
+ showNote(left[0].id)
+})
+var opened = getNotes()
+if (opened.length) showNote(opened[0].id)
+else paintNotes()
 
 var calcScreen = document.querySelector("#calculator")
 var calcClose = document.querySelector("#close-calculator-tab")

@@ -324,6 +324,22 @@ document.getElementById("open-spot").addEventListener("click", function(e) {
  openWindow(spotScreen)
 })
 spotScreen.addEventListener("mousedown", function() { tap(spotScreen) })
+function loadSpot() {
+ var box = document.getElementById("spot-box")
+ var frame = document.getElementById("spot-frame")
+ if (!frame) return
+ var raw = box ? box.value : ""
+ raw = raw.replace(/^https?:\/\//, "")
+ raw = raw.replace(/^open\.spotify\.com\//, "")
+ raw = raw.split("?")[0]
+ if (raw.indexOf("embed/") == 0) raw = raw.slice(6)
+ if (!raw) raw = "playlist/79FMSJmmkwHxTngEM7fxr6"
+ frame.src = "https://open.spotify.com/embed/" + raw + "?utm_source=generator"
+}
+document.getElementById("spot-go").addEventListener("click", function(e) {
+ e.stopPropagation()
+ loadSpot()
+})
 
 var songImage = document.getElementById("song-image")
 var songName = document.getElementById("song-name")
@@ -456,10 +472,15 @@ function readSet() {
  if (!h || h < 0) h = 0
  if (!m || m < 0) m = 0
  if (!s || s < 0) s = 0
- if (h > 99) h = 99
- if (m > 59) m = 59
- if (s > 59) s = 59
- return h * 3600 + m * 60 + s
+ var total = h * 3600 + m * 60 + s
+ if (total > 99 * 3600) total = 99 * 3600
+ h = Math.floor(total / 3600)
+ m = Math.floor((total % 3600) / 60)
+ s = total % 60
+ document.getElementById("set-h").value = h
+ document.getElementById("set-m").value = m
+ document.getElementById("set-s").value = s
+ return total
 }
 function paintFlip() {
  var h = Math.floor(timeLeft / 3600)
@@ -933,9 +954,9 @@ function grow(el) {
   }
   if (el.id == "browser" || el.id == "spot") {
    var frame = document.getElementById(el.id == "spot" ? "spot-frame" : "web-frame")
-   var bar = el.id == "browser" ? document.getElementById("web-bar") : null
+   var bar = document.getElementById(el.id == "spot" ? "spot-bar" : "web-bar")
    var top = el.querySelector(".app-header")
-   var used = (top ? top.offsetHeight : 40) + (bar ? bar.offsetHeight : 40) + 8
+   var used = (top ? top.offsetHeight : 40) + (bar ? bar.offsetHeight : 0) + 8
    if (frame) frame.style.height = Math.max(120, el.clientHeight - used) + "px"
   }
   return

@@ -64,7 +64,7 @@
 <svg viewBox="0 0 32 32"><rect x="5" y="10" width="22" height="14" rx="2" fill="none" stroke="#2a1810" stroke-width="2.4"/><circle cx="16" cy="17" r="4" fill="none" stroke="#2a1810" stroke-width="2.2"/></svg>
 <p>Camera</p>
 </div>
-<div id="welcome" class="app-window welcome-window" style="top:78px;left:210px">
+<div id="welcome" class="app-window welcome-window" style="top:64px;left:196px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
 <button class="close-button" id="closeWelcomeTab" type="button"></button>
@@ -168,11 +168,20 @@ Hi, I'm Athan. This is ColorfulNOOK OS, a small desk with a loud living room beh
 <p class="header-title">Timer</p>
 <button type="button" id="close-pomo-tab" class="close-button"></button>
 </div>
-<p id="pomo-timer">25:00</p>
+<div id="pomo-timer">
+<div class="fl"><b id="fl-h">00</b><span>h</span></div>
+<div class="fl"><b id="fl-m">25</b><span>m</span></div>
+<div class="fl"><b id="fl-s">00</b><span>s</span></div>
+</div>
+<div id="pomo-set">
+<label>h <input id="set-h" type="number" min="0" max="99" value="0"></label>
+<label>m <input id="set-m" type="number" min="0" max="59" value="25"></label>
+<label>s <input id="set-s" type="number" min="0" max="59" value="0"></label>
+</div>
 <div id="pomo-button-holder">
-<button id="start" class="pomo-button" type="button">start</button>
-<button id="stop" class="pomo-button" type="button">stop</button>
-<button id="reset" class="pomo-button" type="button">reset</button>
+<button id="start" class="pomo-button" type="button">Start</button>
+<button id="stop" class="pomo-button" type="button">Stop</button>
+<button id="reset" class="pomo-button" type="button">Reset</button>
 </div>
 </div>
 <div id="settings" class="app-window" style="display:none;top:90px;left:420px">

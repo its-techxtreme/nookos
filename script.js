@@ -418,26 +418,91 @@ var stopButton = document.getElementById("stop")
 var resetButton = document.getElementById("reset")
 var pomoTimer = document.getElementById("pomo-timer")
 var timeLeft = 1500
+var setFor = 1500
+var going = 0
 var interval = null
-function updateTimer() {
- var minutes = Math.floor(timeLeft / 60)
- var seconds = timeLeft % 60
- if (seconds < 10) seconds = "0" + seconds
- pomoTimer.innerHTML = minutes + ":" + seconds
+function pad2(n) {
+ n = Math.floor(n)
+ if (n < 0) n = 0
+ if (n < 10) return "0" + n
+ return String(n)
+}
+function faceText(sec) {
+ var h = Math.floor(sec / 3600)
+ var m = Math.floor((sec % 3600) / 60)
+ var s = sec % 60
+ if (h) return h + ":" + pad2(m) + ":" + pad2(s)
+ return pad2(m) + ":" + pad2(s)
+}
+function readSet() {
+ var h = parseInt(document.getElementById("set-h").value, 10)
+ var m = parseInt(document.getElementById("set-m").value, 10)
+ var s = parseInt(document.getElementById("set-s").value, 10)
+ if (!h || h < 0) h = 0
+ if (!m || m < 0) m = 0
+ if (!s || s < 0) s = 0
+ if (h > 99) h = 99
+ if (m > 59) m = 59
+ if (s > 59) s = 59
+ return h * 3600 + m * 60 + s
+}
+function paintFlip() {
+ var h = Math.floor(timeLeft / 3600)
+ var m = Math.floor((timeLeft % 3600) / 60)
+ var s = timeLeft % 60
+ var a = document.getElementById("fl-h")
+ var b = document.getElementById("fl-m")
+ var c = document.getElementById("fl-s")
+ if (a) a.textContent = pad2(h)
+ if (b) b.textContent = pad2(m)
+ if (c) c.textContent = pad2(s)
  var face = document.getElementById("desktimer-read")
- if (face) face.textContent = minutes + ":" + seconds
+ if (face) face.textContent = faceText(timeLeft)
+}
+function updateTimer() {
+ paintFlip()
+}
+function beep() {
+ try {
+  var Ctx = window.AudioContext || window.webkitAudioContext
+  var ctx = new Ctx()
+  var t = ctx.currentTime
+  var i
+  for (i = 0; i < 4; i++) {
+   var o = ctx.createOscillator()
+   var g = ctx.createGain()
+   o.type = "square"
+   o.frequency.value = i % 2 ? 660 : 880
+   g.gain.setValueAtTime(0.001, t + i * 0.38)
+   g.gain.exponentialRampToValueAtTime(0.4, t + i * 0.38 + 0.02)
+   g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.38 + 0.28)
+   o.connect(g)
+   g.connect(ctx.destination)
+   o.start(t + i * 0.38)
+   o.stop(t + i * 0.38 + 0.3)
+  }
+ } catch (err) {
+  if (pomoTimer) pomoTimer.setAttribute("data-ding", "1")
+ }
 }
 function startTimer() {
  if (interval) return
+ if (!going) {
+  timeLeft = readSet()
+  setFor = timeLeft
+ }
+ if (timeLeft <= 0) return
+ going = 1
+ updateTimer()
  interval = setInterval(function() {
   timeLeft--
+  if (timeLeft < 0) timeLeft = 0
   updateTimer()
   if (timeLeft === 0) {
    clearInterval(interval)
    interval = null
-   alert("times up")
-   timeLeft = 1500
-   updateTimer()
+   going = 0
+   beep()
   }
  }, 1000)
 }
@@ -448,7 +513,10 @@ function stopTimer() {
 function resetTimer() {
  clearInterval(interval)
  interval = null
- timeLeft = 1500
+ going = 0
+ timeLeft = readSet()
+ if (!timeLeft) timeLeft = setFor || 1500
+ setFor = timeLeft
  updateTimer()
 }
 startButton.addEventListener("click", startTimer)
@@ -841,6 +909,12 @@ function grow(el) {
  if (String(el.className).indexOf("big") != -1) return
  if (el.id == "browser" || el.id == "notes" || el.id == "cam") {
   el.style.setProperty("--sc", "1")
+  if (el.id == "notes") {
+   var paper = document.getElementById("notes-content")
+   var topbar = el.querySelector(".app-header")
+   var used = topbar ? topbar.offsetHeight : 40
+   if (paper) paper.style.height = Math.max(120, el.clientHeight - used) + "px"
+  }
   if (el.id == "browser") {
    var frame = document.getElementById("web-frame")
    var bar = document.getElementById("web-bar")
@@ -972,6 +1046,9 @@ function stashWidgets() {
 }
 
 function pullWidgets() {
+ var lay = ""
+ try { lay = localStorage.getItem("nook-lay") || "" } catch (err) { lay = "b" }
+ if (lay != "b") return
  var raw
  try { raw = localStorage.getItem("nook-widgets") } catch (err) { return }
  if (!raw) return
@@ -1192,8 +1269,8 @@ function makeChips() {
  var photo = document.createElement("div")
  photo.id = "deskphoto"
  photo.className = "dy po"
- photo.style.top = "70px"
- photo.style.right = "240px"
+ photo.style.top = "108px"
+ photo.style.right = "228px"
  photo.style.left = "auto"
  var tack = document.createElement("div")
  tack.className = "tk"
@@ -1560,6 +1637,12 @@ function stashIcons() {
  }
 }
 function pullIcons() {
+ var lay = ""
+ try { lay = localStorage.getItem("nook-lay") || "" } catch (err) { lay = "b" }
+ if (lay != "b") {
+  try { localStorage.setItem("nook-lay", "b") } catch (err) { console.log(err) }
+  return
+ }
  var raw
  try { raw = localStorage.getItem("nook-icons") } catch (err) { return }
  if (!raw) return

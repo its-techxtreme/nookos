@@ -351,10 +351,10 @@ var nextSongButton = document.getElementById("next-song")
 var shuffleButton = document.getElementById("shuffle-song")
 var replayButton = document.getElementById("replay-song")
 var songs = [
- { image: "pics/1.png", name: "Window Rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
- { image: "pics/2.png", name: "Old Tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
- { image: "pics/3.png", name: "Late Night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
- { image: "pics/1.png", name: "Porch Air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
+ { image: "pics/6.png", name: "Window Rain", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+ { image: "pics/8.png", name: "Old Tape", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+ { image: "pics/10.png", name: "Late Night", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+ { image: "pics/11.png", name: "Porch Air", artist: "Athan", audio: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" }
 ]
 var audio = document.createElement("audio")
 var currentSongIndex = 0

@@ -164,6 +164,19 @@ document.getElementById("p9").onclick = function() { shot.src = "pics/9.png" }
 document.getElementById("p10").onclick = function() { shot.src = "pics/10.png" }
 document.getElementById("p11").onclick = function() { shot.src = "pics/11.png" }
 
+var pickBtns = document.querySelectorAll("#picks button")
+var pi
+for (pi = 0; pi < pickBtns.length; pi++) {
+ pickBtns[pi].style.backgroundImage = "url(pics/" + (pi + 1) + ".png)"
+ pickBtns[pi].addEventListener("click", function() {
+  var all = document.querySelectorAll("#picks button")
+  var j
+  for (j = 0; j < all.length; j++) all[j].classList.remove("on")
+  this.classList.add("on")
+ })
+}
+pickBtns[0].classList.add("on")
+
 var notesContainer = document.getElementById("notes-content")
 var addNoteButton = document.getElementById("new-note-button")
 
@@ -653,6 +666,7 @@ function onSize() {
   }
  }
  phone = now
+ layIcons()
 }
 
 window.addEventListener("resize", onSize)
@@ -1457,6 +1471,131 @@ document.getElementById("cam-roll").addEventListener("click", function(e) {
  big.className = "on"
 })
 showRoll()
+
+function layIcons() {
+ var icons = document.querySelectorAll(".app-icon")
+ var col = 2
+ var x0 = 12
+ var y0 = 58
+ var cw = 86
+ var ch = 84
+ var i
+ for (i = 0; i < icons.length; i++) {
+  var el = icons[i]
+  if (el.getAttribute("data-set") == "1") continue
+  var c = i % col
+  var r = Math.floor(i / col)
+  el.style.left = (x0 + c * cw) + "px"
+  el.style.top = (y0 + r * ch) + "px"
+ }
+}
+function stashIcons() {
+ var bag = {}
+ var icons = document.querySelectorAll(".app-icon")
+ var i
+ for (i = 0; i < icons.length; i++) {
+  var el = icons[i]
+  if (el.getAttribute("data-set") != "1") continue
+  bag[el.id] = { l: el.style.left, t: el.style.top }
+ }
+ try {
+  localStorage.setItem("nook-icons", JSON.stringify(bag))
+ } catch (err) {
+  console.log(err)
+ }
+}
+function pullIcons() {
+ var raw
+ try { raw = localStorage.getItem("nook-icons") } catch (err) { return }
+ if (!raw) return
+ var bag
+ try { bag = JSON.parse(raw) } catch (err) { return }
+ var id
+ for (id in bag) {
+  var el = document.getElementById(id)
+  if (!el || !bag[id] || !bag[id].l) continue
+  el.style.left = bag[id].l
+  el.style.top = bag[id].t
+  el.setAttribute("data-set", "1")
+ }
+}
+function dragIcon(el) {
+ var sx = 0
+ var sy = 0
+ var ox = 0
+ var oy = 0
+ var on = 0
+ function down(x, y) {
+  sx = x
+  sy = y
+  ox = el.offsetLeft
+  oy = el.offsetTop
+  on = 1
+  el.setAttribute("data-moved", "0")
+ }
+ el.addEventListener("mousedown", function(e) {
+  if (e.button && e.button != 0) return
+  down(e.clientX, e.clientY)
+ })
+ el.addEventListener("touchstart", function(e) {
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  down(p.clientX, p.clientY)
+ }, { passive: true })
+ document.addEventListener("mousemove", function(e) {
+  if (!on) return
+  var nx = ox + e.clientX - sx
+  var ny = oy + e.clientY - sy
+  if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 4) el.setAttribute("data-moved", "1")
+  if (nx < 4) nx = 4
+  if (ny < 40) ny = 40
+  if (nx > window.innerWidth - 70) nx = window.innerWidth - 70
+  if (ny > window.innerHeight - 60) ny = window.innerHeight - 60
+  el.style.left = nx + "px"
+  el.style.top = ny + "px"
+ })
+ document.addEventListener("touchmove", function(e) {
+  if (!on) return
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  var nx = ox + p.clientX - sx
+  var ny = oy + p.clientY - sy
+  if (Math.abs(p.clientX - sx) + Math.abs(p.clientY - sy) > 4) el.setAttribute("data-moved", "1")
+  if (nx < 4) nx = 4
+  if (ny < 40) ny = 40
+  el.style.left = nx + "px"
+  el.style.top = ny + "px"
+ }, { passive: true })
+ document.addEventListener("mouseup", function() {
+  if (!on) return
+  on = 0
+  if (el.getAttribute("data-moved") == "1") {
+   el.setAttribute("data-set", "1")
+   stashIcons()
+  }
+ })
+ document.addEventListener("touchend", function() {
+  if (!on) return
+  on = 0
+  if (el.getAttribute("data-moved") == "1") {
+   el.setAttribute("data-set", "1")
+   stashIcons()
+  }
+ })
+}
+document.addEventListener("click", function(e) {
+ var ic = e.target.closest && e.target.closest(".app-icon")
+ if (!ic) return
+ if (ic.getAttribute("data-moved") != "1") return
+ e.stopPropagation()
+ e.preventDefault()
+ ic.setAttribute("data-moved", "0")
+}, true)
+pullIcons()
+layIcons()
+var iconNodes = document.querySelectorAll(".app-icon")
+var ii
+for (ii = 0; ii < iconNodes.length; ii++) dragIcon(iconNodes[ii])
 
 
 

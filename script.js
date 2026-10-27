@@ -98,7 +98,8 @@ var iconFor = {
  browser: "open-browser-tab",
  pomo: "open-pomo-tab",
  settings: "open-set-tab",
- cam: "open-cam-tab"
+ cam: "open-cam-tab",
+ widgets: "open-wig-tab"
 }
 
 // old zoom used data-big and slid under the bar
@@ -316,6 +317,13 @@ var musicScreen = document.querySelector("#music")
 document.querySelector("#close-music-tab").addEventListener("click", function() { closeWindow(musicScreen) })
 document.querySelector("#open-music-tab").addEventListener("click", function() { openWindow(musicScreen) })
 musicScreen.addEventListener("mousedown", function() { tap(musicScreen) })
+var spotScreen = document.querySelector("#spot")
+document.querySelector("#close-spot-tab").addEventListener("click", function() { closeWindow(spotScreen) })
+document.getElementById("open-spot").addEventListener("click", function(e) {
+ e.stopPropagation()
+ openWindow(spotScreen)
+})
+spotScreen.addEventListener("mousedown", function() { tap(spotScreen) })
 
 var songImage = document.getElementById("song-image")
 var songName = document.getElementById("song-name")
@@ -407,6 +415,13 @@ var setScreen = document.querySelector("#settings")
 document.querySelector("#close-set-tab").addEventListener("click", function() { closeWindow(setScreen) })
 document.querySelector("#open-set-tab").addEventListener("click", function() { openWindow(setScreen) })
 setScreen.addEventListener("mousedown", function() { tap(setScreen) })
+var wigScreen = document.querySelector("#widgets")
+document.querySelector("#close-wig-tab").addEventListener("click", function() { closeWindow(wigScreen) })
+document.querySelector("#open-wig-tab").addEventListener("click", function() {
+ openWindow(wigScreen)
+ paintWig()
+})
+wigScreen.addEventListener("mousedown", function() { tap(wigScreen) })
 document.getElementById("walls").addEventListener("click", function(e) {
  var kind = e.target.getAttribute && e.target.getAttribute("data-wall")
  if (!kind) return
@@ -620,7 +635,7 @@ function fit(el, s) {
  var sy = newH / oldH
  var sc = sx < sy ? sx : sy
  if (sc < 1) sc = 1
- if (el.id == "browser" || el.id == "notes" || el.id == "cam") sc = 1
+ if (el.id == "browser" || el.id == "notes" || el.id == "cam" || el.id == "spot") sc = 1
  el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
 }
 
@@ -744,9 +759,10 @@ function tuck(el) {
  if (room < 160) room = 160
  var want = 320
  if (el.id == "notes" || el.id == "calculator") want = 460
- if (el.id == "browser" || el.id == "anime" || el.id == "clock") want = 400
+ if (el.id == "browser" || el.id == "anime" || el.id == "clock" || el.id == "spot") want = 400
  if (el.id == "pomo") want = 220
- if (el.id == "settings") want = 280
+ if (el.id == "settings") want = 520
+ if (el.id == "widgets") want = 460
  if (el.id == "cam") want = 420
  if (el.id == "welcome") want = 0
  if (want > room) want = room
@@ -907,7 +923,7 @@ function grow(el) {
  var s = slot(el)
  if (!s || !s.baseW) return
  if (String(el.className).indexOf("big") != -1) return
- if (el.id == "browser" || el.id == "notes" || el.id == "cam") {
+ if (el.id == "browser" || el.id == "notes" || el.id == "cam" || el.id == "spot") {
   el.style.setProperty("--sc", "1")
   if (el.id == "notes") {
    var paper = document.getElementById("notes-content")
@@ -915,9 +931,9 @@ function grow(el) {
    var used = topbar ? topbar.offsetHeight : 40
    if (paper) paper.style.height = Math.max(120, el.clientHeight - used) + "px"
   }
-  if (el.id == "browser") {
-   var frame = document.getElementById("web-frame")
-   var bar = document.getElementById("web-bar")
+  if (el.id == "browser" || el.id == "spot") {
+   var frame = document.getElementById(el.id == "spot" ? "spot-frame" : "web-frame")
+   var bar = el.id == "browser" ? document.getElementById("web-bar") : null
    var top = el.querySelector(".app-header")
    var used = (top ? top.offsetHeight : 40) + (bar ? bar.offsetHeight : 40) + 8
    if (frame) frame.style.height = Math.max(120, el.clientHeight - used) + "px"
@@ -1190,6 +1206,7 @@ function peg(el) {
   el.style.display = "none"
   bar.style.display = "none"
   stashWidgets()
+  if (typeof paintWig == "function") paintWig()
  })
  var paints = ["#ff6b6b", "#f0c230", "#4ecdc4", "#d9a5e8", "#8fde5d"]
  var i
@@ -1304,10 +1321,136 @@ function makeChips() {
   }
   openWindow(document.getElementById("anime"))
  })
+ var quote = document.createElement("div")
+ quote.id = "deskquote"
+ quote.className = "dy chip"
+ quote.style.top = "120px"
+ quote.style.left = "620px"
+ quote.style.right = "auto"
+ quote.style.display = "none"
+ var qb = document.createElement("b")
+ qb.textContent = "Quote"
+ var qv = document.createElement("span")
+ qv.id = "deskquote-read"
+ var qlines = ["11 is still lucky", "The sofa is the room", "Write it down first"]
+ var qn = 0
+ qv.textContent = qlines[0]
+ var qnext = document.createElement("button")
+ qnext.type = "button"
+ qnext.textContent = "Next"
+ qnext.addEventListener("click", function(e) {
+  e.stopPropagation()
+  qn = qn + 1
+  if (qn >= qlines.length) qn = 0
+  qv.textContent = qlines[qn]
+ })
+ quote.appendChild(qb)
+ quote.appendChild(qv)
+ quote.appendChild(qnext)
+ document.body.appendChild(quote)
+ shove(quote)
+ peg(quote)
+ var todo = document.createElement("div")
+ todo.id = "desktodo"
+ todo.className = "dy chip"
+ todo.style.top = "160px"
+ todo.style.left = "430px"
+ todo.style.right = "auto"
+ todo.style.display = "none"
+ var tb = document.createElement("b")
+ tb.textContent = "To do"
+ var tin = document.createElement("input")
+ tin.id = "todo-box"
+ tin.placeholder = "Add one"
+ var rows = document.createElement("div")
+ rows.id = "todo-rows"
+ todo.appendChild(tb)
+ todo.appendChild(tin)
+ todo.appendChild(rows)
+ document.body.appendChild(todo)
+ shove(todo)
+ peg(todo)
+ tin.addEventListener("mousedown", function(e) { e.stopPropagation() })
+ tin.addEventListener("keydown", function(e) {
+  if (e.key != "Enter") return
+  var t = tin.value.replace(/^\s+|\s+$/g, "")
+  if (!t) return
+  var list = pullTodo()
+  list.unshift({ t: t, done: 0 })
+  if (list.length > 8) list.pop()
+  saveTodo(list)
+  tin.value = ""
+  paintTodo()
+ })
+ rows.addEventListener("click", function(e) {
+  e.stopPropagation()
+  var n = e.target.getAttribute && e.target.getAttribute("data-i")
+  if (n == null) return
+  var list = pullTodo()
+  n = parseInt(n, 10)
+  if (!list[n]) return
+  list[n].done = list[n].done ? 0 : 1
+  saveTodo(list)
+  paintTodo()
+ })
+ var spotw = document.createElement("div")
+ spotw.id = "deskspot"
+ spotw.className = "dy chip"
+ spotw.style.top = "160px"
+ spotw.style.left = "620px"
+ spotw.style.right = "auto"
+ spotw.style.display = "none"
+ var spb = document.createElement("b")
+ spb.textContent = "Spotify"
+ var spv = document.createElement("span")
+ spv.textContent = "Open"
+ spotw.appendChild(spb)
+ spotw.appendChild(spv)
+ document.body.appendChild(spotw)
+ shove(spotw)
+ peg(spotw)
+ spotw.addEventListener("click", function() {
+  if (spotw.getAttribute("data-moved") == "1") {
+   spotw.setAttribute("data-moved", "0")
+   return
+  }
+  openWindow(document.getElementById("spot"))
+ })
+ paintTodo()
  stackChips()
  if (typeof updateTimer == "function") updateTimer()
 }
 
+function pullTodo() {
+ try {
+  var raw = localStorage.getItem("nook-todo")
+  if (!raw) return []
+  var list = JSON.parse(raw)
+  if (!list) return []
+  return list
+ } catch (err) {
+  console.log(err)
+  return []
+ }
+}
+function saveTodo(list) {
+ try { localStorage.setItem("nook-todo", JSON.stringify(list)) } catch (err) { console.log(err) }
+}
+function paintTodo() {
+ var box = document.getElementById("todo-rows")
+ if (!box) return
+ box.innerHTML = ""
+ var list = pullTodo()
+ var i
+ for (i = 0; i < list.length; i++) {
+  var row = document.createElement("button")
+  row.type = "button"
+  row.setAttribute("data-i", String(i))
+  row.textContent = (list[i].done ? "x " : "o ") + list[i].t
+  if (list[i].done) row.className = "done"
+  box.appendChild(row)
+ }
+}
 function stackChips() {
  var ids = ["desktimer", "deskmusic", "deskpin", "desknotes"]
  var y = 300
@@ -1323,20 +1466,52 @@ function stackChips() {
  }
 }
 
+function paintWig() {
+ var box = document.getElementById("wig-list")
+ if (!box) return
+ var bits = [
+  ["deskclock", "Clock"],
+  ["deskdate", "Date"],
+  ["desktimer", "Timer"],
+  ["deskmusic", "Music"],
+  ["deskpin", "Pin"],
+  ["desknotes", "Notes"],
+  ["deskphoto", "Anime"],
+  ["deskquote", "Quote"],
+  ["desktodo", "To do"],
+  ["deskspot", "Spotify"]
+ ]
+ box.innerHTML = ""
+ var i
+ for (i = 0; i < bits.length; i++) {
+  var id = bits[i][0]
+  var el = document.getElementById(id)
+  var b = document.createElement("button")
+  b.type = "button"
+  b.setAttribute("data-bit", id)
+  var on = el && el.style.display != "none"
+  b.textContent = on ? bits[i][1] + " is on the desk" : bits[i][1]
+  if (on) b.className = "on"
+  box.appendChild(b)
+ }
+}
+document.getElementById("wig-list").addEventListener("click", function(e) {
+ var id = e.target.getAttribute && e.target.getAttribute("data-bit")
+ if (!id) return
+ var el = document.getElementById(id)
+ if (!el) return
+ if (el.style.display != "none") return
+ el.style.display = ""
+ stashWidgets()
+ paintWig()
+})
 function makeMenu() {
  var box = document.createElement("div")
  box.id = "deskmenu"
  var names = [
-  ["welcome", "Welcome"],
-  ["anime", "Anime"],
-  ["notes", "Notes"],
-  ["calculator", "Calc"],
-  ["music", "Music"],
-  ["browser", "Web"],
-  ["pomo", "Timer"],
-  ["clock", "Clock"],
   ["settings", "Settings"],
-  ["cam", "Camera"]
+  ["widgets", "Widgets"],
+  ["browser", "Web"]
  ]
  var i
  for (i = 0; i < names.length; i++) {
@@ -1346,41 +1521,6 @@ function makeMenu() {
   b.setAttribute("data-app", names[i][0])
   box.appendChild(b)
  }
- var bits = [
-  ["deskclock", "Clock"],
-  ["deskdate", "Date"],
-  ["desktimer", "Timer"],
-  ["deskmusic", "Music"],
-  ["deskpin", "Pin"],
-  ["desknotes", "Notes"],
-  ["deskphoto", "Photo"]
- ]
- var list = document.createElement("div")
- list.id = "wglist"
- var toggle = document.createElement("button")
- toggle.type = "button"
- toggle.textContent = "Widgets"
- toggle.addEventListener("click", function(e) {
-  e.stopPropagation()
-  list.style.display = list.style.display == "block" ? "none" : "block"
- })
- box.appendChild(toggle)
- for (i = 0; i < bits.length; i++) {
-  var show = document.createElement("button")
-  show.type = "button"
-  show.textContent = bits[i][1]
-  show.setAttribute("data-bit", bits[i][0])
-  show.addEventListener("click", function(e) {
-   e.stopPropagation()
-   var id = this.getAttribute("data-bit")
-   var node = document.getElementById(id)
-   if (!node) return
-   node.style.display = ""
-   stashWidgets()
-  })
-  list.appendChild(show)
- }
- box.appendChild(list)
  document.body.appendChild(box)
  box.addEventListener("click", function(e) {
   var id = e.target.getAttribute && e.target.getAttribute("data-app")
@@ -1439,10 +1579,22 @@ boot()
 function setWall(kind) {
  var bg = document.getElementById("background")
  if (!bg) return
+ bg.style.backgroundImage = ""
  if (!kind || kind == "sofa") {
   bg.className = ""
   bg.style.backgroundColor = ""
   kind = "sofa"
+ } else if (kind == "pic") {
+  var pic = ""
+  try { pic = localStorage.getItem("nook-pic") || "" } catch (err) { console.log(err) }
+  if (!pic) {
+   bg.className = ""
+   kind = "sofa"
+  } else {
+   bg.className = "own"
+   bg.style.backgroundColor = ""
+   bg.style.backgroundImage = "url(" + pic + ")"
+  }
  } else {
   bg.className = "flat"
   bg.style.backgroundColor = kind
@@ -1453,6 +1605,8 @@ function setWall(kind) {
   if (btns[i].getAttribute("data-wall") == kind) btns[i].className = "on"
   else btns[i].className = ""
  }
+ var own = document.getElementById("own-lab")
+ if (own) own.className = kind == "pic" ? "on" : ""
  try {
   localStorage.setItem("nook-wall", kind)
  } catch (err) {
@@ -1462,6 +1616,97 @@ function setWall(kind) {
 var kept = "sofa"
 try { kept = localStorage.getItem("nook-wall") || "sofa" } catch (err) { console.log(err) }
 setWall(kept)
+
+function readLook() {
+ var look = { theme: "nook", size: "m", font: "fred", cols: "2", curve: 0 }
+ try {
+  var raw = localStorage.getItem("nook-look")
+  if (raw) {
+   var saved = JSON.parse(raw)
+   if (saved.theme) look.theme = saved.theme
+   if (saved.size) look.size = saved.size
+   if (saved.font) look.font = saved.font
+   if (saved.cols) look.cols = String(saved.cols)
+   if (saved.curve) look.curve = 1
+  }
+ } catch (err) { console.log(err) }
+ return look
+}
+function saveLook(look) {
+ try { localStorage.setItem("nook-look", JSON.stringify(look)) } catch (err) { console.log(err) }
+}
+function markRow(sel, attr, val) {
+ var list = document.querySelectorAll(sel)
+ var i
+ for (i = 0; i < list.length; i++) {
+  list[i].className = list[i].getAttribute(attr) == String(val) ? "on" : ""
+ }
+}
+function paintLook(look) {
+ var b = document.body
+ b.classList.remove("th-night", "th-candy", "sz-s", "sz-b", "font-plain", "font-story", "curvy", "cols-1")
+ if (look.theme == "night") b.classList.add("th-night")
+ if (look.theme == "candy") b.classList.add("th-candy")
+ if (look.size == "s") b.classList.add("sz-s")
+ if (look.size == "b") b.classList.add("sz-b")
+ if (look.font == "plain") b.classList.add("font-plain")
+ if (look.font == "story") b.classList.add("font-story")
+ if (look.curve) b.classList.add("curvy")
+ if (String(look.cols) == "1") b.classList.add("cols-1")
+ markRow("#themes button", "data-theme", look.theme)
+ markRow("#sizes button", "data-size", look.size)
+ markRow("#fonts button", "data-font", look.font)
+ markRow("#cols button", "data-cols", look.cols)
+ var curve = document.getElementById("curve-go")
+ if (curve) curve.className = look.curve ? "on" : ""
+ layIcons()
+}
+document.getElementById("settings").addEventListener("click", function(e) {
+ var t = e.target
+ if (!t || !t.getAttribute) return
+ var look = readLook()
+ if (t.getAttribute("data-theme")) look.theme = t.getAttribute("data-theme")
+ else if (t.getAttribute("data-size")) look.size = t.getAttribute("data-size")
+ else if (t.getAttribute("data-font")) look.font = t.getAttribute("data-font")
+ else if (t.getAttribute("data-cols")) look.cols = t.getAttribute("data-cols")
+ else if (t.id == "curve-go") look.curve = look.curve ? 0 : 1
+ else return
+ saveLook(look)
+ paintLook(look)
+})
+document.getElementById("own-pic").addEventListener("change", function() {
+ var f = this.files && this.files[0]
+ var note = document.getElementById("set-note")
+ if (!f) return
+ var reader = new FileReader()
+ reader.onload = function() {
+  var img = new Image()
+  img.onload = function() {
+   var c = document.createElement("canvas")
+   var w = img.width
+   var h = img.height
+   if (w > 960) {
+    h = Math.round(h * 960 / w)
+    w = 960
+   }
+   c.width = w
+   c.height = h
+   c.getContext("2d").drawImage(img, 0, 0, w, h)
+   var url = c.toDataURL("image/jpeg", 0.7)
+   try {
+    localStorage.setItem("nook-pic", url)
+    setWall("pic")
+    if (note) note.textContent = ""
+   } catch (err) {
+    if (note) note.textContent = "That picture is too heavy to keep"
+    console.log(err)
+   }
+  }
+  img.src = reader.result
+ }
+ reader.readAsDataURL(f)
+})
+paintLook(readLook())
 
 var camScreen = document.querySelector("#cam")
 var camStream = null
@@ -1606,11 +1851,11 @@ showRoll()
 
 function layIcons() {
  var icons = document.querySelectorAll(".app-icon")
- var col = 2
+ var col = document.body.className.indexOf("cols-1") != -1 ? 1 : 2
  var x0 = 12
  var y0 = 58
  var cw = 86
- var ch = 84
+ var ch = 108
  var i
  for (i = 0; i < icons.length; i++) {
   var el = icons[i]

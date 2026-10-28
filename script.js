@@ -99,6 +99,7 @@ var iconFor = {
  pomo: "open-pomo-tab",
  settings: "open-set-tab",
  cam: "open-cam-tab",
+ gal: "open-gal-tab",
  widgets: "open-wig-tab"
 }
 
@@ -812,6 +813,7 @@ function tuck(el) {
  if (el.id == "settings") want = 520
  if (el.id == "widgets") want = 460
  if (el.id == "cam") want = 420
+ if (el.id == "gal") want = 480
  if (el.id == "welcome") want = 0
  if (want > room) want = room
  if (want) el.style.height = want + "px"
@@ -1789,7 +1791,33 @@ function stashRoll(list) {
   document.getElementById("cam-note").textContent = "Could not save that shot"
  }
 }
+var camFx = "none"
+var camWait = 0
+var camTick = null
+var fxCss = {
+ none: "none",
+ warm: "sepia(0.35) saturate(1.25)",
+ cool: "hue-rotate(18deg) saturate(1.15)",
+ bright: "brightness(1.28) contrast(1.05)",
+ fade: "contrast(0.82) saturate(0.7) brightness(1.08)",
+ noir: "grayscale(1) contrast(1.25)"
+}
+function paintFx() {
+ var vid = document.getElementById("cam-view")
+ if (vid) vid.style.filter = fxCss[camFx] || "none"
+ var row = document.querySelectorAll("#cam-fx button")
+ var i
+ for (i = 0; i < row.length; i++) {
+  row[i].className = row[i].getAttribute("data-fx") == camFx ? "on" : ""
+ }
+}
 function killCam() {
+ if (camTick) {
+  clearInterval(camTick)
+  camTick = null
+ }
+ var num = document.getElementById("cam-count")
+ if (num) num.textContent = ""
  if (!camStream) return
  var tracks = camStream.getTracks()
  var i
@@ -1818,6 +1846,7 @@ function showRoll() {
   slot.appendChild(x)
   box.appendChild(slot)
  }
+ paintGal()
 }
 function openCam() {
  killCam()
@@ -1864,23 +1893,65 @@ function snapCam() {
  c.width = w
  c.height = h
  var g = c.getContext("2d")
+ g.filter = fxCss[camFx] || "none"
  g.translate(w, 0)
  g.scale(-1, 1)
  g.drawImage(vid, 0, 0, w, h)
+ g.filter = "none"
  var url = c.toDataURL("image/jpeg", 0.6)
  var list = pullRoll()
  list.unshift(url)
- if (list.length > 6) list.length = 6
+ if (list.length > 12) list.length = 12
  stashRoll(list)
  showRoll()
 }
+function countSnap() {
+ if (camTick) return
+ if (!camWait) {
+  snapCam()
+  return
+ }
+ var left = camWait
+ var box = document.getElementById("cam-count")
+ if (box) box.textContent = left
+ camTick = setInterval(function() {
+  left--
+  if (left > 0) {
+   if (box) box.textContent = left
+   return
+  }
+  clearInterval(camTick)
+  camTick = null
+  if (box) box.textContent = ""
+  snapCam()
+ }, 1000)
+}
+document.getElementById("cam-fx").addEventListener("click", function(e) {
+ e.stopPropagation()
+ var fx = e.target.getAttribute && e.target.getAttribute("data-fx")
+ if (!fx) return
+ camFx = fx
+ paintFx()
+})
+document.getElementById("cam-row").addEventListener("click", function(e) {
+ var sec = e.target.getAttribute && e.target.getAttribute("data-sec")
+ if (!sec) return
+ e.stopPropagation()
+ var n = Number(sec)
+ camWait = camWait == n ? 0 : n
+ var waits = document.querySelectorAll(".cam-wait")
+ var i
+ for (i = 0; i < waits.length; i++) {
+  waits[i].className = "cam-wait" + (camWait && waits[i].getAttribute("data-sec") == String(camWait) ? " on" : "")
+ }
+})
 document.getElementById("cam-go").addEventListener("click", function(e) {
  e.stopPropagation()
  openCam()
 })
 document.getElementById("cam-snap").addEventListener("click", function(e) {
  e.stopPropagation()
- snapCam()
+ countSnap()
 })
 document.getElementById("cam-roll").addEventListener("click", function(e) {
  e.stopPropagation()
@@ -1903,6 +1974,262 @@ document.getElementById("cam-roll").addEventListener("click", function(e) {
  if (!big || !list[n]) return
  big.src = list[n]
  big.className = "on"
+})
+var galPick = 0
+var galUndo = []
+var galRedo = []
+var galBase = ""
+function markHist() {
+ var u = document.getElementById("gal-undo")
+ var r = document.getElementById("gal-redo")
+ var d = document.getElementById("gal-drop")
+ if (u) u.className = galUndo.length ? "" : "off"
+ if (r) r.className = galRedo.length ? "" : "off"
+ if (d) d.className = galBase && pullRoll()[galPick] != galBase ? "" : "off"
+}
+function paintGal() {
+ var box = document.getElementById("gal-grid")
+ if (!box) return
+ var list = pullRoll()
+ var note = document.getElementById("gal-note")
+ var pic = document.getElementById("gal-pic")
+ box.innerHTML = ""
+ if (!list.length) {
+  if (note) note.textContent = "No shots yet. Take one in Camera."
+  if (pic) { pic.className = ""; pic.removeAttribute("src") }
+  return
+ }
+ if (galPick >= list.length) galPick = 0
+ if (!galBase) galBase = list[galPick]
+ if (note) note.textContent = (galPick + 1) + " of " + list.length
+ if (pic) { pic.src = list[galPick]; pic.className = "on" }
+ var i
+ for (i = 0; i < list.length; i++) {
+  var img = document.createElement("img")
+  img.src = list[i]
+  img.setAttribute("data-i", String(i))
+  if (i == galPick) img.className = "on"
+  box.appendChild(img)
+ }
+ markHist()
+}
+function saveUrl(url, name) {
+ var a = document.createElement("a")
+ a.href = url
+ a.download = name
+ document.body.appendChild(a)
+ a.click()
+ a.remove()
+}
+function applyUrl(url) {
+ var list = pullRoll()
+ if (!list[galPick]) return
+ galUndo.push(list[galPick])
+ galRedo = []
+ list[galPick] = url
+ stashRoll(list)
+ showRoll()
+}
+function bake(how) {
+ var list = pullRoll()
+ if (!list[galPick]) return
+ var img = new Image()
+ img.onload = function() {
+  var c = document.createElement("canvas")
+  var g = c.getContext("2d")
+  if (how == "turn") {
+   c.width = img.height
+   c.height = img.width
+   g.translate(c.width / 2, c.height / 2)
+   g.rotate(Math.PI / 2)
+   g.drawImage(img, -img.width / 2, -img.height / 2)
+  } else {
+   return
+  }
+  try {
+   applyUrl(c.toDataURL("image/jpeg", 0.7))
+  } catch (err) {
+   console.log(err)
+   document.getElementById("gal-note").textContent = "Could not save that edit"
+  }
+ }
+ img.src = list[galPick]
+}
+function dumpAll() {
+ var list = pullRoll()
+ var note = document.getElementById("gal-note")
+ if (!list.length) {
+  if (note) note.textContent = "Nothing to save"
+  return
+ }
+ var i = 0
+ function next() {
+  if (i >= list.length) return
+  saveUrl(list[i], "nook-" + (i + 1) + ".jpg")
+  i++
+  setTimeout(next, 350)
+ }
+ next()
+}
+var galScreen = document.querySelector("#gal")
+document.querySelector("#close-gal-tab").addEventListener("click", function() { closeWindow(galScreen) })
+document.querySelector("#open-gal-tab").addEventListener("click", function() {
+ openWindow(galScreen)
+ paintGal()
+})
+galScreen.addEventListener("mousedown", function() { tap(galScreen) })
+document.getElementById("gal-grid").addEventListener("click", function(e) {
+ var i = e.target.getAttribute && e.target.getAttribute("data-i")
+ if (i == null) return
+ galPick = Number(i)
+ galUndo = []
+ galRedo = []
+ galBase = pullRoll()[galPick] || ""
+ var win = document.getElementById("gal")
+ if (win) win.classList.remove("cutting")
+ paintGal()
+})
+document.getElementById("gal-turn").addEventListener("click", function(e) {
+ e.stopPropagation()
+ bake("turn")
+})
+document.getElementById("gal-crop").addEventListener("click", function(e) {
+ e.stopPropagation()
+ var win = document.getElementById("gal")
+ var pic = document.getElementById("gal-pic")
+ var box = document.getElementById("gal-box")
+ if (!win || !pic || !pic.getAttribute("src")) return
+ if (win.classList.contains("cutting")) {
+  win.classList.remove("cutting")
+  return
+ }
+ win.classList.add("cutting")
+ box.style.left = "12%"
+ box.style.top = "12%"
+ box.style.width = "76%"
+ box.style.height = "76%"
+})
+var cropOn = 0
+var cropHow = ""
+var cropX = 0
+var cropY = 0
+var crop0 = null
+document.addEventListener("mousedown", function(e) {
+ var win = document.getElementById("gal")
+ if (!win || !win.classList.contains("cutting")) return
+ if (e.target.id != "gal-box" && e.target.id != "gal-grip") return
+ e.preventDefault()
+ var box = document.getElementById("gal-box")
+ cropOn = 1
+ cropHow = e.target.id == "gal-grip" ? "size" : "move"
+ cropX = e.clientX
+ cropY = e.clientY
+ crop0 = { l: box.offsetLeft, t: box.offsetTop, w: box.offsetWidth, h: box.offsetHeight }
+})
+document.addEventListener("mousemove", function(e) {
+ if (!cropOn || !crop0) return
+ var box = document.getElementById("gal-box")
+ var stage = document.getElementById("gal-stage")
+ if (!box || !stage) return
+ var dx = e.clientX - cropX
+ var dy = e.clientY - cropY
+ var l = crop0.l
+ var t = crop0.t
+ var w = crop0.w
+ var h = crop0.h
+ if (cropHow == "size") {
+  w = crop0.w + dx
+  h = crop0.h + dy
+ } else {
+  l = crop0.l + dx
+  t = crop0.t + dy
+ }
+ if (w < 28) w = 28
+ if (h < 28) h = 28
+ if (l < 0) l = 0
+ if (t < 0) t = 0
+ if (l + w > stage.clientWidth) {
+  if (cropHow == "size") w = stage.clientWidth - l
+  else l = stage.clientWidth - w
+ }
+ if (t + h > stage.clientHeight) {
+  if (cropHow == "size") h = stage.clientHeight - t
+  else t = stage.clientHeight - h
+ }
+ box.style.left = l + "px"
+ box.style.top = t + "px"
+ box.style.width = w + "px"
+ box.style.height = h + "px"
+})
+document.addEventListener("mouseup", function() { cropOn = 0 })
+document.getElementById("gal-ok").addEventListener("click", function(e) {
+ e.stopPropagation()
+ var pic = document.getElementById("gal-pic")
+ var box = document.getElementById("gal-box")
+ var stage = document.getElementById("gal-stage")
+ var win = document.getElementById("gal")
+ if (!pic || !box || !stage || !pic.naturalWidth) return
+ var img = new Image()
+ img.onload = function() {
+  var sx = box.offsetLeft / stage.clientWidth
+  var sy = box.offsetTop / stage.clientHeight
+  var sw = box.offsetWidth / stage.clientWidth
+  var sh = box.offsetHeight / stage.clientHeight
+  var c = document.createElement("canvas")
+  c.width = Math.max(1, Math.round(img.naturalWidth * sw))
+  c.height = Math.max(1, Math.round(img.naturalHeight * sh))
+  var g = c.getContext("2d")
+  g.drawImage(img, Math.round(img.naturalWidth * sx), Math.round(img.naturalHeight * sy), c.width, c.height, 0, 0, c.width, c.height)
+  try {
+   applyUrl(c.toDataURL("image/jpeg", 0.7))
+  } catch (err) {
+   console.log(err)
+   document.getElementById("gal-note").textContent = "Could not crop that"
+  }
+  if (win) win.classList.remove("cutting")
+ }
+ img.src = pic.src
+})
+document.getElementById("gal-undo").addEventListener("click", function(e) {
+ e.stopPropagation()
+ if (!galUndo.length) return
+ var list = pullRoll()
+ galRedo.push(list[galPick])
+ list[galPick] = galUndo.pop()
+ stashRoll(list)
+ showRoll()
+})
+document.getElementById("gal-redo").addEventListener("click", function(e) {
+ e.stopPropagation()
+ if (!galRedo.length) return
+ var list = pullRoll()
+ galUndo.push(list[galPick])
+ list[galPick] = galRedo.pop()
+ stashRoll(list)
+ showRoll()
+})
+document.getElementById("gal-drop").addEventListener("click", function(e) {
+ e.stopPropagation()
+ if (!galBase) return
+ var list = pullRoll()
+ if (!list[galPick] || list[galPick] == galBase) return
+ galUndo.push(list[galPick])
+ galRedo = []
+ list[galPick] = galBase
+ stashRoll(list)
+ var win = document.getElementById("gal")
+ if (win) win.classList.remove("cutting")
+ showRoll()
+})
+document.getElementById("gal-one").addEventListener("click", function(e) {
+ e.stopPropagation()
+ var list = pullRoll()
+ if (!list[galPick]) return
+ saveUrl(list[galPick], "nook-" + (galPick + 1) + ".jpg")
+})
+document.getElementById("gal-all").addEventListener("click", function(e) {
+ e.stopPropagation()
+ dumpAll()
 })
 showRoll()
 

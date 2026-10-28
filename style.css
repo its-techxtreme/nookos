@@ -1549,6 +1549,32 @@ body.th-night #taskbar {
 body.th-night #osname { color: #fff6d8; }
 body.th-night #osname b { color: #2a1810; }
 #deskclock { top: 72px; }
+#cam-stage { position: relative; width: 92%; margin: 10px auto 0; }
+#cam-stage #cam-view { width: 100%; margin: 0; }
+#cam-count {
+ position: absolute;
+ left: 0;
+ right: 0;
+ top: 38%;
+ margin: 0;
+ text-align: center;
+ font-size: 64px;
+ color: #fff6d8;
+ text-shadow: 3px 3px 0 #2a1810;
+ pointer-events: none;
+}
+#cam-fx { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; }
+#cam-fx button, .cam-wait {
+ border: 2px solid #2a1810;
+ border-radius: 12px;
+ background: #fffaf2;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 14px;
+ padding: 4px 8px;
+ cursor: pointer;
+}
+#cam-fx button.on, .cam-wait.on { background: #f0c230; }
 #barhide {
  position: absolute;
  right: 18px;
@@ -1561,6 +1587,77 @@ body.th-night #osname b { color: #2a1810; }
  box-shadow: none;
  padding: 0;
  cursor: pointer;
+}
+#gal { width: 380px; background: #fff6d8; max-height: 78vh; overflow: auto; }
+#gal-note { font-size: 14px; min-height: 18px; margin: 8px 12px; }
+#gal-pic { display: none; width: 86%; margin: 4px auto; border: 3px solid #2a1810; border-radius: 14px; }
+#gal-pic.on { display: block; }
+#gal-tools { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; }
+#gal-tools button {
+ border: 2px solid #2a1810;
+ border-radius: 12px;
+ background: #fffaf2;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 5px 10px;
+ cursor: pointer;
+}
+#gal-turn, #gal-crop { background: #f0c230; }
+#gal-grid { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 12px 14px; }
+#gal-grid img { width: 72px; height: 72px; object-fit: cover; border: 2px solid #2a1810; border-radius: 8px; cursor: pointer; }
+#gal-grid img.on { border: 3px solid #ff6b6b; }
+#open-gal-tab { background: #fff6d8; }
+#gal-stage { position: relative; width: 90%; margin: 4px auto; }
+#gal-pic { width: 100%; margin: 0; }
+#gal-box {
+ display: none;
+ position: absolute;
+ border: 2px dashed #fffaf2;
+ box-shadow: 0 0 0 999px rgba(42,24,16,.55);
+ cursor: move;
+}
+#gal.cutting #gal-box { display: block; }
+#gal-grip {
+ position: absolute;
+ right: -7px;
+ bottom: -7px;
+ width: 16px;
+ height: 16px;
+ background: #f0c230;
+ border: 2px solid #2a1810;
+ border-radius: 4px;
+ cursor: nwse-resize;
+}
+#gal-ok { display: none; background: #8fde5d; }
+#gal.cutting #gal-ok { display: inline-block; }
+#gal-tools button.off { opacity: .38; }
+#cam { background: #2a1810; width: 340px; }
+#cam .header-title { color: #fff6d8; }
+#cam-stage { width: 100%; margin: 0; background: #111; }
+#cam-stage #cam-view { border-radius: 0; border-width: 0; max-height: 240px; }
+#cam-fx { background: #3a281c; }
+#cam-fx button { background: #5a4030; color: #fff6d8; border-color: #2a1810; }
+#cam-row { background: #2a1810; justify-content: center; align-items: center; padding: 10px 12px 12px; }
+#cam-snap {
+ width: 64px;
+ height: 64px;
+ border-radius: 50%;
+ background: #ff6b6b;
+ color: #fffaf2;
+ border: 4px solid #fffaf2;
+ box-shadow: 0 0 0 3px #2a1810;
+ padding: 0;
+}
+#cam-go, .cam-wait { background: #fff6d8; }
+#cam-row #cam-snap {
+ width: 64px;
+ height: 64px;
+ border-radius: 50%;
+ background: #ff6b6b;
+ color: #fffaf2;
+ border: 4px solid #fffaf2;
+ box-shadow: 0 0 0 3px #2a1810;
+ padding: 0;
 }
 
 

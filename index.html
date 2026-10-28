@@ -65,6 +65,10 @@
 <svg viewBox="0 0 32 32"><rect x="5" y="10" width="22" height="14" rx="2" fill="none" stroke="#2a1810" stroke-width="2.4"/><circle cx="16" cy="17" r="4" fill="none" stroke="#2a1810" stroke-width="2.2"/></svg>
 <p>Camera</p>
 </div>
+<div class="app-icon" id="open-gal-tab">
+<svg viewBox="0 0 32 32"><rect x="6" y="8" width="14" height="12" rx="1" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="12" y="12" width="14" height="12" rx="1" fill="#fff6d8" stroke="#2a1810" stroke-width="2.2"/></svg>
+<p>Gallery</p>
+</div>
 <div class="app-icon" id="open-wig-tab">
 <svg viewBox="0 0 32 32"><rect x="5" y="6" width="9" height="9" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="18" y="6" width="9" height="9" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="5" y="18" width="9" height="8" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="18" y="18" width="9" height="8" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/></svg>
 <p>Widgets</p>
@@ -273,15 +277,50 @@ You can drag the windows, keep notes, snap a photo, run a timer, and pin widgets
 <p class="header-title">Camera</p>
 <button type="button" id="close-cam-tab" class="close-button"></button>
 </div>
+<div id="cam-stage">
 <video id="cam-view" autoplay playsinline></video>
+<p id="cam-count"></p>
+</div>
 <img id="cam-big" alt="">
 <p id="cam-note"></p>
+<div id="cam-fx">
+<button type="button" data-fx="none" class="on">Plain</button>
+<button type="button" data-fx="warm">Warm</button>
+<button type="button" data-fx="cool">Cool</button>
+<button type="button" data-fx="bright">Bright</button>
+<button type="button" data-fx="fade">Fade</button>
+<button type="button" data-fx="noir">Noir</button>
+</div>
 <div id="cam-row">
 <button type="button" id="cam-go">Open</button>
 <button type="button" id="cam-snap">Snap</button>
+<button type="button" class="cam-wait" data-sec="3">3s</button>
+<button type="button" class="cam-wait" data-sec="10">10s</button>
 </div>
 <div id="cam-roll"></div>
 <canvas id="cam-grab"></canvas>
+</div>
+<div id="gal" class="app-window" style="display:none;top:90px;left:360px">
+<div id="galheader" class="app-header">
+<p class="header-title">Gallery</p>
+<button type="button" id="close-gal-tab" class="close-button"></button>
+</div>
+<p id="gal-note">Shots from Camera land here.</p>
+<div id="gal-stage">
+<img id="gal-pic" alt="">
+<div id="gal-box"><b id="gal-grip"></b></div>
+</div>
+<div id="gal-tools">
+<button type="button" id="gal-turn">Turn</button>
+<button type="button" id="gal-crop">Crop</button>
+<button type="button" id="gal-ok">Done</button>
+<button type="button" id="gal-undo">Undo</button>
+<button type="button" id="gal-redo">Redo</button>
+<button type="button" id="gal-drop">Discard</button>
+<button type="button" id="gal-one">Save this</button>
+<button type="button" id="gal-all">Save all</button>
+</div>
+<div id="gal-grid"></div>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">
 <div id="animeheader" class="app-header">

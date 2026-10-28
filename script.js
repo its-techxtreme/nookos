@@ -461,6 +461,7 @@ document.getElementById("calc-modes").addEventListener("click", function(e) {
  var i
  for (i = 0; i < btns.length; i++) btns[i].className = btns[i].getAttribute("data-mode") == mode ? "on" : ""
  paintKeys()
+ sizeCalc()
 })
 document.getElementById("keys").addEventListener("click", function(e) {
  var t = e.target.textContent
@@ -495,6 +496,21 @@ document.getElementById("calc-extra").addEventListener("click", function(e) {
 document.getElementById("calc-extra").addEventListener("input", function() {
  if (calcMode == "grade") gradeMath()
 })
+function sizeCalc() {
+ var el = document.getElementById("calculator")
+ if (!el || String(el.className).indexOf("big") != -1) return
+ var box = { basic: [300, 500], sci: [300, 580], grade: [360, 440], tip: [300, 360] }
+ var pick = box[calcMode] || box.basic
+ var w = pick[0]
+ var h = pick[1]
+ if (narrow()) {
+  if (w > window.innerWidth - 16) w = window.innerWidth - 16
+  if (h > window.innerHeight - headH() - 12) h = window.innerHeight - headH() - 12
+ }
+ el.style.width = w + "px"
+ el.style.height = h + "px"
+ grow(el)
+}
 paintKeys()
 
 var musicScreen = document.querySelector("#music")
@@ -975,19 +991,24 @@ function tuck(el) {
  if (el.className.indexOf("big") != -1) return
  if (el.style.display == "none") return
  if (!narrow()) {
+  el.style.transform = ""
+  el.style.transformOrigin = ""
   spread(el)
   return
  }
  remember(el)
- var edge = el.offsetWidth - el.clientWidth
- if (getComputedStyle(el).boxSizing == "border-box") edge = 0
- var w = window.innerWidth - 16 - edge
- if (w < 200) w = 200
  el.style.left = "8px"
- el.style.width = w + "px"
  el.style.top = (headH() + 6) + "px"
+ el.style.transformOrigin = "top left"
+ var natural = el.offsetWidth || 380
+ var sc = 0.78
+ if (natural * sc > window.innerWidth - 12) sc = (window.innerWidth - 12) / natural
+ if (sc > 0.78) sc = 0.78
+ if (sc < 0.52) sc = 0.52
+ el.style.transform = "scale(" + (Math.round(sc * 100) / 100) + ")"
  var room = window.innerHeight - headH() - 18
  if (room < 160) room = 160
+ room = Math.round(room / sc)
  var want = 320
  if (el.id == "notes" || el.id == "calculator") want = 460
  if (el.id == "browser" || el.id == "anime" || el.id == "clock" || el.id == "spot") want = 400
@@ -1029,17 +1050,11 @@ function onSize() {
  for (i = 0; i < list.length; i++) {
   if (list[i].className.indexOf("big") != -1) continue
   if (now != phone) tuck(list[i])
-  else if (now && list[i].style.display != "none" && list[i].offsetLeft < 24) {
-   var edge = list[i].offsetWidth - list[i].clientWidth
-   if (getComputedStyle(list[i]).boxSizing == "border-box") edge = 0
-   var w = window.innerWidth - 16 - edge
-   if (w < 200) w = 200
-   list[i].style.width = w + "px"
-  }
  }
  phone = now
  layIcons()
  fitLoose()
+ phoneWidgets()
 }
 
 window.addEventListener("resize", onSize)
@@ -1127,7 +1142,12 @@ document.addEventListener("touchstart", function(e) {
 }, { passive: true })
 
 function mins(id) {
- if (id == "calculator") return { w: 250, h: 280 }
+ if (id == "calculator") {
+  if (calcMode == "grade") return { w: 330, h: 400 }
+  if (calcMode == "sci") return { w: 280, h: 500 }
+  if (calcMode == "tip") return { w: 260, h: 320 }
+  return { w: 280, h: 440 }
+ }
  if (id == "clock") return { w: 280, h: 340 }
  if (id == "browser") return { w: 300, h: 220 }
  if (id == "music") return { w: 240, h: 220 }
@@ -2446,15 +2466,36 @@ showRoll()
 function layIcons() {
  var icons = document.querySelectorAll(".app-icon")
  var col = document.body.className.indexOf("cols-1") != -1 ? 1 : 2
- if (narrow()) {
-  col = Math.floor((window.innerWidth - 16) / 88)
-  if (col < 2) col = 2
-  if (col > 4) col = 4
- }
  var x0 = 12
  var y0 = headH() + 12
  var cw = 86
  var ch = 108
+ if (narrow()) {
+  col = 2
+  x0 = 8
+  cw = 70
+  ch = 72
+  var want = ["openWelcomeTab","openAnimeTab","open-calculator-tab","open-music-tab","open-pomo-tab","open-set-tab","open-gal-tab","open-cam-tab","open-browser-tab","open-notes-tab","open-term-tab","open-wig-tab"]
+  var placed = {}
+  var n = 0
+  var k
+  for (k = 0; k < want.length; k++) {
+   var one = document.getElementById(want[k])
+   if (!one) continue
+   one.style.left = (x0 + (n % col) * cw) + "px"
+   one.style.top = (y0 + Math.floor(n / col) * ch) + "px"
+   placed[want[k]] = 1
+   n++
+  }
+  var i2
+  for (i2 = 0; i2 < icons.length; i2++) {
+   if (placed[icons[i2].id]) continue
+   icons[i2].style.left = (x0 + (n % col) * cw) + "px"
+   icons[i2].style.top = (y0 + Math.floor(n / col) * ch) + "px"
+   n++
+  }
+  return
+ }
  var i
  for (i = 0; i < icons.length; i++) {
   var el = icons[i]
@@ -2592,6 +2633,58 @@ clearBar()
 var iconNodes = document.querySelectorAll(".app-icon")
 var ii
 for (ii = 0; ii < iconNodes.length; ii++) dragIcon(iconNodes[ii])
+function phoneWidgets() {
+ var pin = document.getElementById("deskpin")
+ var clock = document.getElementById("deskclock")
+ if (!narrow()) {
+  if (clock) {
+   clock.style.transform = ""
+   clock.style.transformOrigin = ""
+  }
+  if (pin && pin.getAttribute("data-userhide") != "1") pin.style.display = ""
+  var back = ["desknotes", "deskquote", "desktodo"]
+  var bi
+  for (bi = 0; bi < back.length; bi++) {
+   var was = document.getElementById(back[bi])
+   if (!was || was.getAttribute("data-phone") != "1") continue
+   was.style.display = back[bi] == "desknotes" ? "" : "none"
+   was.removeAttribute("data-phone")
+  }
+  return
+ }
+ if (pin && pin.style.display != "none") pin.setAttribute("data-phone", "1")
+ if (pin) pin.style.display = "none"
+ var notes = document.getElementById("desknotes")
+ if (notes && notes.style.display != "none") notes.setAttribute("data-phone", "1")
+ if (notes) notes.style.display = "none"
+ var extras = ["deskquote", "desktodo"]
+ var ei
+ for (ei = 0; ei < extras.length; ei++) {
+  var extra = document.getElementById(extras[ei])
+  if (!extra) continue
+  if (extra.style.display == "none") extra.setAttribute("data-phone", "1")
+  extra.style.display = ""
+ }
+ if (clock) {
+  clock.style.left = "auto"
+  clock.style.right = "4px"
+  clock.style.top = (headH() + 2) + "px"
+ }
+ function put(id, t, r) {
+  var el = document.getElementById(id)
+  if (!el || id == "deskpin" || id == "desknotes") return
+  el.style.left = "auto"
+  el.style.right = r + "px"
+  el.style.top = t + "px"
+ }
+ var y = headH() + 4
+ put("deskphoto", y, 126)
+ put("deskdate", y + 72, 4)
+ put("desktimer", y + 148, 4)
+ put("deskmusic", y + 222, 4)
+ put("deskquote", y + 300, 4)
+ put("desktodo", y + 378, 4)
+}
 function fitLoose() {
  if (!narrow()) return
  var nodes = document.querySelectorAll("#deskclock, #deskdate, .dy")
@@ -2612,7 +2705,9 @@ if (narrow()) {
   tuck(openWins[wi])
  }
  fitLoose()
+ phoneWidgets()
 }
+sizeCalc()
 
 var termAt = ""
 var termHist = []

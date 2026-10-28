@@ -659,10 +659,10 @@ function swell(el) {
  var extraH = 0
  s.cw = el.clientWidth
  s.ch = el.clientHeight
- el.style.top = "36px"
+ el.style.top = headH() + "px"
  el.style.left = "8px"
  el.style.width = (window.innerWidth - 16 - extraW) + "px"
- el.style.height = (window.innerHeight - 48 - extraH) + "px"
+ el.style.height = (window.innerHeight - headH() - 12 - extraH) + "px"
  fit(el, s)
  s.big = 1
  lift(el)
@@ -682,9 +682,14 @@ function fit(el, s) {
  el.style.setProperty("--sc", String(Math.round(sc * 100) / 100))
 }
 
+function headH() {
+ var bar = document.getElementById("taskbar")
+ if (!bar || bar.style.display == "none") return 8
+ return bar.offsetHeight + 6
+}
 function clamp(el, nx, ny) {
  var keep = 72
- if (ny < 38) ny = 38
+ if (ny < headH()) ny = headH()
  if (nx < 80 - el.offsetWidth) nx = 80 - el.offsetWidth
  if (nx > window.innerWidth - keep) nx = window.innerWidth - keep
  return { x: nx, y: ny }
@@ -1040,10 +1045,10 @@ function dragSize(e) {
   if (d == "n" || d == "ne" || d == "nw") t = rs.t + (rs.h - minH)
   h = minH
  }
- if (t < 38) {
-  if (d == "n" || d == "ne" || d == "nw") h = h - (38 - t)
+ if (t < headH()) {
+  if (d == "n" || d == "ne" || d == "nw") h = h - (headH() - t)
   if (h < minH) h = minH
-  t = 38
+  t = headH()
  }
  var extraW = rs.el.offsetWidth - rs.el.clientWidth
  var extraH = rs.el.offsetHeight - rs.el.clientHeight
@@ -1166,7 +1171,7 @@ function shove(el) {
   var ny = oy + e.clientY - sy
   if (Math.abs(e.clientX - sx) > 4 || Math.abs(e.clientY - sy) > 4) el.setAttribute("data-moved", "1")
   if (nx < 8) nx = 8
-  if (ny < 36) ny = 36
+  if (ny < headH()) ny = headH()
   if (nx > window.innerWidth - 80) nx = window.innerWidth - 80
   if (ny > window.innerHeight - 40) ny = window.innerHeight - 40
   el.style.right = "auto"
@@ -1181,7 +1186,7 @@ function shove(el) {
   var ny = oy + p.clientY - sy
   if (Math.abs(p.clientX - sx) > 4 || Math.abs(p.clientY - sy) > 4) el.setAttribute("data-moved", "1")
   if (nx < 8) nx = 8
-  if (ny < 36) ny = 36
+  if (ny < headH()) ny = headH()
   if (nx > window.innerWidth - 80) nx = window.innerWidth - 80
   if (ny > window.innerHeight - 40) ny = window.innerHeight - 40
   el.style.right = "auto"
@@ -1905,7 +1910,7 @@ function layIcons() {
  var icons = document.querySelectorAll(".app-icon")
  var col = document.body.className.indexOf("cols-1") != -1 ? 1 : 2
  var x0 = 12
- var y0 = 58
+ var y0 = headH() + 12
  var cw = 86
  var ch = 108
  var i
@@ -1983,7 +1988,7 @@ function dragIcon(el) {
   var ny = oy + e.clientY - sy
   if (Math.abs(e.clientX - sx) + Math.abs(e.clientY - sy) > 4) el.setAttribute("data-moved", "1")
   if (nx < 4) nx = 4
-  if (ny < 40) ny = 40
+  if (ny < headH()) ny = headH()
   if (nx > window.innerWidth - 70) nx = window.innerWidth - 70
   if (ny > window.innerHeight - 60) ny = window.innerHeight - 60
   el.style.left = nx + "px"
@@ -1997,7 +2002,7 @@ function dragIcon(el) {
   var ny = oy + p.clientY - sy
   if (Math.abs(p.clientX - sx) + Math.abs(p.clientY - sy) > 4) el.setAttribute("data-moved", "1")
   if (nx < 4) nx = 4
-  if (ny < 40) ny = 40
+  if (ny < headH()) ny = headH()
   el.style.left = nx + "px"
   el.style.top = ny + "px"
  }, { passive: true })
@@ -2026,8 +2031,21 @@ document.addEventListener("click", function(e) {
  e.preventDefault()
  ic.setAttribute("data-moved", "0")
 }, true)
+function clearBar() {
+ var floor = headH()
+ var list = document.querySelectorAll(".app-window, .app-icon, #deskclock, #deskdate, .dy")
+ var i
+ for (i = 0; i < list.length; i++) {
+  if (list[i].offsetTop < floor) list[i].style.top = floor + "px"
+ }
+}
+document.getElementById("barhide").addEventListener("click", function(e) {
+ e.stopPropagation()
+ document.getElementById("taskbar").style.display = "none"
+})
 pullIcons()
 layIcons()
+clearBar()
 var iconNodes = document.querySelectorAll(".app-icon")
 var ii
 for (ii = 0; ii < iconNodes.length; ii++) dragIcon(iconNodes[ii])

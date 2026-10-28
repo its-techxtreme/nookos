@@ -1501,6 +1501,67 @@ body.curvy #welcome { border-radius: 22px; }
 .grip.nw, .grip.ne, .grip.sw, .grip.se { width: 14px; height: 14px; background: transparent; border: 0; border-radius: 0; box-shadow: none; }
 .grip.nw { left: 0; top: 0; cursor: nwse-resize; }
 .app-window.big .grip { display: none; }
+#taskbar {
+ height: 52px;
+ background: #fffaf2;
+ border-bottom: 4px solid #2a1810;
+ align-items: center;
+ justify-content: center;
+ padding: 0 12px;
+ box-shadow: 0 5px 0 #f0c230;
+}
+#taskbar p { margin: 0; }
+#osname {
+ font-size: 22px;
+ display: flex;
+ align-items: center;
+ gap: 6px;
+}
+#osname .nd {
+ display: inline-block;
+ width: 12px;
+ height: 12px;
+ margin: 0;
+ border-radius: 50%;
+ background: #ff6b6b;
+ border: 2px solid #2a1810;
+}
+#osname .nd.a { background: #4ecdc4; }
+#osname .nd.l { background: #d9a5e8; margin-right: 8px; }
+#osname b {
+ background: #f0c230;
+ color: #2a1810;
+ border: 2px solid #2a1810;
+ border-radius: 9px;
+ padding: 0 7px 1px;
+ margin: 0;
+ font-weight: 500;
+}
+body.th-candy #taskbar {
+ background: #ffe4ea;
+ box-shadow: 0 5px 0 #ffb3c1;
+}
+body.th-night #taskbar {
+ background: #2a1810;
+ border-bottom-color: #d9a5e8;
+ box-shadow: 0 5px 0 #5a3a28;
+}
+body.th-night #osname { color: #fff6d8; }
+body.th-night #osname b { color: #2a1810; }
+#deskclock { top: 72px; }
+#barhide {
+ position: absolute;
+ right: 18px;
+ top: 50%;
+ transform: translateY(-50%);
+ font-size: 14px;
+ color: #8a6a52;
+ background: none;
+ border: 0;
+ box-shadow: none;
+ padding: 0;
+ cursor: pointer;
+}
 
 
 

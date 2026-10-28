@@ -73,6 +73,10 @@
 <svg viewBox="0 0 32 32"><rect x="5" y="6" width="9" height="9" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="18" y="6" width="9" height="9" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="5" y="18" width="9" height="8" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/><rect x="18" y="18" width="9" height="8" rx="2" fill="none" stroke="#2a1810" stroke-width="2.2"/></svg>
 <p>Widgets</p>
 </div>
+<div class="app-icon" id="open-term-tab">
+<svg viewBox="0 0 32 32"><rect x="4" y="7" width="24" height="18" rx="2" fill="none" stroke="#fff6d8" stroke-width="2.2"/><path d="M8 13 L13 16 L8 19 M15 20 H23" fill="none" stroke="#f0c230" stroke-width="2.2"/></svg>
+<p>Terminal</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:196px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -321,6 +325,19 @@ You can drag the windows, keep notes, snap a photo, run a timer, and pin widgets
 <button type="button" id="gal-all">Save all</button>
 </div>
 <div id="gal-grid"></div>
+</div>
+<div id="term" class="app-window" style="display:none;top:110px;left:240px">
+<div id="termheader" class="app-header">
+<p class="header-title">Terminal</p>
+<button type="button" id="close-term-tab" class="close-button"></button>
+</div>
+<div id="term-screen">
+<div id="term-log"></div>
+<form id="term-line">
+<span id="term-prompt">C:\ColorfulNOOK&gt;</span>
+<input id="term-in" autocomplete="off" spellcheck="false">
+</form>
+</div>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">
 <div id="animeheader" class="app-header">

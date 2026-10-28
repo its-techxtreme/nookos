@@ -1649,6 +1649,31 @@ body.th-night #osname b { color: #2a1810; }
  padding: 0;
 }
 #cam-go, .cam-wait { background: #fff6d8; }
+#term { width: 460px; background: #2a1810; }
+#term .header-title { color: #fff6d8; }
+#term-screen {
+ flex: 1;
+ min-height: 240px;
+ overflow: auto;
+ padding: 10px 12px 8px;
+ background: #1c120c;
+ color: #fff6d8;
+ font-family: Consolas, "Courier New", monospace;
+ font-size: 14px;
+}
+#term-log p { margin: 0 0 3px; white-space: pre-wrap; color: #fff6d8; }
+#term-line { display: flex; gap: 8px; align-items: center; }
+#term-prompt { color: #f0c230; }
+#term-in {
+ flex: 1;
+ background: transparent;
+ border: 0;
+ color: #fff6d8;
+ font: inherit;
+ outline: none;
+ padding: 0;
+}
+#open-term-tab { background: #2a1810; }
 #cam-row #cam-snap {
  width: 64px;
  height: 64px;

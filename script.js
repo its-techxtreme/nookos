@@ -100,7 +100,8 @@ var iconFor = {
  settings: "open-set-tab",
  cam: "open-cam-tab",
  gal: "open-gal-tab",
- widgets: "open-wig-tab"
+ widgets: "open-wig-tab",
+ term: "open-term-tab"
 }
 
 // old zoom used data-big and slid under the bar
@@ -814,6 +815,7 @@ function tuck(el) {
  if (el.id == "widgets") want = 460
  if (el.id == "cam") want = 420
  if (el.id == "gal") want = 480
+ if (el.id == "term") want = 380
  if (el.id == "welcome") want = 0
  if (want > room) want = room
  if (want) el.style.height = want + "px"
@@ -1561,7 +1563,8 @@ function makeMenu() {
  var names = [
   ["settings", "Settings"],
   ["widgets", "Widgets"],
-  ["browser", "Web"]
+  ["browser", "Web"],
+  ["term", "Terminal"]
  ]
  var i
  for (i = 0; i < names.length; i++) {
@@ -2376,6 +2379,189 @@ clearBar()
 var iconNodes = document.querySelectorAll(".app-icon")
 var ii
 for (ii = 0; ii < iconNodes.length; ii++) dragIcon(iconNodes[ii])
+
+var termAt = ""
+var termHist = []
+var termRoot = "C:\\ColorfulNOOK"
+function termPath() {
+ return termAt ? termRoot + "\\" + termAt : termRoot
+}
+function termSay(text) {
+ var log = document.getElementById("term-log")
+ if (!log) return
+ var p = document.createElement("p")
+ p.textContent = text
+ log.appendChild(p)
+ var screen = document.getElementById("term-screen")
+ if (screen) screen.scrollTop = screen.scrollHeight
+}
+function splitCmd(s) {
+ var out = []
+ var cur = ""
+ var q = ""
+ var i
+ for (i = 0; i < s.length; i++) {
+  var ch = s.charAt(i)
+  if (q) {
+   if (ch == q) q = ""
+   else cur += ch
+  } else if (ch == "\"" || ch == "'") q = ch
+  else if (ch == " ") {
+   if (cur) { out.push(cur); cur = "" }
+  } else cur += ch
+ }
+ if (cur) out.push(cur)
+ return out
+}
+function termNames() {
+ if (termAt == "Notes") {
+  var notes = getNotes()
+  var names = []
+  var i
+  for (i = 0; i < notes.length; i++) names.push("note-" + (i + 1) + ".txt")
+  return names
+ }
+ if (termAt == "Camera") {
+  var shots = pullRoll()
+  var pics = []
+  var j
+  for (j = 0; j < shots.length; j++) pics.push("shot-" + (j + 1) + ".jpg")
+  return pics
+ }
+ if (termAt == "Apps") return ["Welcome", "Anime", "Notes", "Calc", "Music", "Web", "Timer", "Settings", "Camera", "Gallery", "Widgets", "Terminal", "Spotify", "Clock"]
+ return ["Notes", "Camera", "Apps"]
+}
+function termOpen(name) {
+ var key = name.toLowerCase()
+ var map = {
+  welcome: "welcome", anime: "anime", notes: "notes", calc: "calculator", calculator: "calculator",
+  music: "music", web: "browser", browser: "browser", timer: "pomo", pomo: "pomo",
+  settings: "settings", camera: "cam", cam: "cam", gallery: "gal", gal: "gal",
+  widgets: "widgets", terminal: "term", term: "term", spotify: "spot", clock: "clock"
+ }
+ var id = map[key]
+ if (!id) return 0
+ var win = document.getElementById(id)
+ if (!win) return 0
+ openWindow(win)
+ if (id == "clock" && desk) desk.style.display = "none"
+ if (id == "gal") paintGal()
+ if (id == "widgets") paintWig()
+ return 1
+}
+function termRun(raw) {
+ var line = raw.replace(/^\s+|\s+$/g, "")
+ termSay(termPath() + "> " + line)
+ if (!line) return
+ termHist.push(line)
+ var bits = splitCmd(line)
+ var cmd = bits[0].toLowerCase()
+ var rest = bits.slice(1).join(" ")
+ if (cmd == "help") {
+  termSay("help      commands")
+  termSay("cls       clear the screen")
+  termSay("dir       list this folder")
+  termSay("cd        change folder")
+  termSay("type      read a note")
+  termSay("echo      print some text")
+  termSay("date      today's date")
+  termSay("time      the clock")
+  termSay("whoami    who is at the desk")
+  termSay("ver       which nook this is")
+  termSay("history   what you typed")
+  termSay("start     open an app")
+  termSay("title     rename this window")
+  termSay("color     cream mustard aqua coral lime")
+  return
+ }
+ if (cmd == "cls" || cmd == "clear") {
+  document.getElementById("term-log").innerHTML = ""
+  return
+ }
+ if (cmd == "echo") { termSay(rest); return }
+ if (cmd == "pwd") { termSay(termPath()); return }
+ if (cmd == "whoami") { termSay("Athan"); return }
+ if (cmd == "ver") { termSay("ColorfulNOOK OS"); return }
+ if (cmd == "date" || cmd == "time") {
+  var now = new Date()
+  termSay(cmd == "date" ? now.toDateString() : now.toLocaleTimeString())
+  return
+ }
+ if (cmd == "history") {
+  var h
+  for (h = 0; h < termHist.length; h++) termSay((h + 1) + "  " + termHist[h])
+  return
+ }
+ if (cmd == "title") {
+  var title = document.querySelector("#term .header-title")
+  if (title) title.textContent = rest || "Terminal"
+  return
+ }
+ if (cmd == "color") {
+  var ink = { cream: "#fff6d8", mustard: "#f0c230", aqua: "#4ecdc4", coral: "#ff6b6b", lime: "#8fde5d" }
+  var pick = ink[(rest || "cream").toLowerCase()]
+  if (!pick) { termSay("try cream mustard aqua coral lime"); return }
+  document.getElementById("term-screen").style.color = pick
+  document.getElementById("term-in").style.color = pick
+  return
+ }
+ if (cmd == "dir" || cmd == "ls") {
+  var names = termNames()
+  if (!names.length) { termSay("empty"); return }
+  var n
+  for (n = 0; n < names.length; n++) termSay(names[n])
+  return
+ }
+ if (cmd == "cd") {
+  var go = rest.replace(/\\/g, "/").replace(/^\/+|\/+$/g, "")
+  if (!go || go.toLowerCase() == "c:" || go.toLowerCase() == "c:/colorfulnook") {
+   termAt = ""
+  } else if (go == "..") {
+   termAt = ""
+  } else {
+   var leaf = go.split("/").pop().toLowerCase()
+   if (leaf == "notes") termAt = "Notes"
+   else if (leaf == "camera") termAt = "Camera"
+   else if (leaf == "apps") termAt = "Apps"
+   else { termSay("no folder named " + rest); return }
+  }
+  document.getElementById("term-prompt").textContent = termPath() + ">"
+  return
+ }
+ if (cmd == "type" || cmd == "cat") {
+  if (termAt != "Notes") { termSay("notes live in the Notes folder"); return }
+  var m = /(\d+)/.exec(rest)
+  var notes = getNotes()
+  var ix = m ? Number(m[1]) - 1 : -1
+  if (ix < 0 || !notes[ix]) { termSay("no file named " + (rest || "that")); return }
+  termSay(notes[ix].content || "")
+  return
+ }
+ if (cmd == "start" || cmd == "open") {
+  if (!rest) { termSay("start Notes   or Camera, Gallery, Web..."); return }
+  if (!termOpen(rest.split(" ")[0])) termSay("no app named " + rest)
+  return
+ }
+ termSay("'" + bits[0] + "' is not a command. Type help")
+}
+var termScreen = document.getElementById("term")
+document.getElementById("close-term-tab").addEventListener("click", function() { closeWindow(termScreen) })
+document.getElementById("open-term-tab").addEventListener("click", function() {
+ openWindow(termScreen)
+ var box = document.getElementById("term-in")
+ if (box) box.focus()
+})
+termScreen.addEventListener("mousedown", function() { tap(termScreen) })
+document.getElementById("term-line").addEventListener("submit", function(e) {
+ e.preventDefault()
+ var box = document.getElementById("term-in")
+ termRun(box.value)
+ box.value = ""
+})
+document.getElementById("term-screen").addEventListener("click", function() {
+ document.getElementById("term-in").focus()
+})
+termSay("ColorfulNOOK terminal. Type help")
 
 
 

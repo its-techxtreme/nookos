@@ -300,20 +300,202 @@ calcOpen.addEventListener("click", function() { openWindow(calcScreen) })
 calcScreen.addEventListener("mousedown", function() { tap(calcScreen) })
 
 var display = document.getElementById("display")
+var calcMode = "basic"
 function appendToDisplay(input) {
  display.value += input
 }
 function clearDisplay() {
  display.value = ""
 }
+function backDisplay() {
+ display.value = display.value.slice(0, -1)
+}
+function dsin(x) { return Math.sin(x * Math.PI / 180) }
+function dcos(x) { return Math.cos(x * Math.PI / 180) }
+function dtan(x) { return Math.tan(x * Math.PI / 180) }
 function calculate() {
  try {
-  var raw = display.value.replace(/%/g, "/100")
-  display.value = eval(raw)
+  var raw = display.value
+  raw = raw.replace(/π/g, "Math.PI")
+  raw = raw.replace(/√/g, "Math.sqrt")
+  raw = raw.replace(/\^/g, "**")
+  raw = raw.replace(/sin/g, "dsin")
+  raw = raw.replace(/cos/g, "dcos")
+  raw = raw.replace(/tan/g, "dtan")
+  raw = raw.replace(/log/g, "Math.log10")
+  raw = raw.replace(/ln/g, "Math.log")
+  raw = raw.replace(/%/g, "/100")
+  if (!/^[0-9+\-*/()., A-Za-z*]+$/.test(raw)) {
+   display.value = "Error"
+   return
+  }
+  var n = Function("dsin", "dcos", "dtan", "return (" + raw + ")")(dsin, dcos, dtan)
+  if (typeof n != "number" || n != n || n == Infinity) {
+   display.value = "Error"
+   return
+  }
+  display.value = String(Math.round(n * 1e10) / 1e10)
  } catch (error) {
   display.value = "Error"
  }
 }
+var basicKeys = ["C","\u232b","%","/","7","8","9","*","4","5","6","-","1","2","3","+","0",".","(",")","="]
+var sciKeys = ["sin","cos","tan","\u221a","log","ln","\u03c0","^","C","\u232b","%","/","7","8","9","*","4","5","6","-","1","2","3","+","0",".","(",")","="]
+function paintKeys() {
+ var box = document.getElementById("keys")
+ var extra = document.getElementById("calc-extra")
+ if (!box || !extra) return
+ var sci = calcMode == "sci"
+ box.style.display = (calcMode == "basic" || sci) ? "grid" : "none"
+ extra.style.display = (calcMode == "basic" || sci) ? "none" : "block"
+ box.innerHTML = ""
+ extra.innerHTML = ""
+ if (calcMode == "basic" || sci) {
+  var list = sci ? sciKeys : basicKeys
+  var i
+  for (i = 0; i < list.length; i++) {
+   var b = document.createElement("button")
+   b.type = "button"
+   b.className = "calc-button"
+   b.textContent = list[i]
+   if (list[i] == "=") b.className += " eq"
+   else if ("+-*/%^".indexOf(list[i]) != -1 || list[i] == "\u221a") b.className += " op"
+   box.appendChild(b)
+  }
+  return
+ }
+ if (calcMode == "grade") {
+  var note = document.createElement("p")
+  note.textContent = "got / out of"
+  extra.appendChild(note)
+  var hold = document.createElement("div")
+  hold.id = "grade-rows"
+  var r
+  for (r = 0; r < 3; r++) {
+   var row = document.createElement("div")
+   row.className = "gr"
+   var a = document.createElement("input")
+   a.placeholder = "got"
+   var slash = document.createElement("span")
+   slash.textContent = "/"
+   var c = document.createElement("input")
+   c.placeholder = "out of"
+   row.appendChild(a)
+   row.appendChild(slash)
+   row.appendChild(c)
+   hold.appendChild(row)
+  }
+  extra.appendChild(hold)
+  var add = document.createElement("button")
+  add.type = "button"
+  add.id = "grade-add"
+  add.textContent = "Add row"
+  var gout = document.createElement("p")
+  gout.id = "grade-out"
+  gout.textContent = "average shows here"
+  extra.appendChild(add)
+  extra.appendChild(gout)
+  return
+ }
+ var bill = document.createElement("input")
+ bill.id = "tip-bill"
+ bill.placeholder = "bill"
+ var pct = document.createElement("input")
+ pct.id = "tip-pct"
+ pct.placeholder = "tip %"
+ pct.value = "15"
+ var ppl = document.createElement("input")
+ ppl.id = "tip-ppl"
+ ppl.placeholder = "people"
+ ppl.value = "1"
+ var go = document.createElement("button")
+ go.type = "button"
+ go.id = "tip-go"
+ go.textContent = "Split"
+ var ans = document.createElement("p")
+ ans.id = "tip-out"
+ ans.textContent = "tip and each person"
+ extra.appendChild(bill)
+ extra.appendChild(pct)
+ extra.appendChild(ppl)
+ extra.appendChild(go)
+ extra.appendChild(ans)
+}
+function gradeMath() {
+ var rows = document.querySelectorAll("#grade-rows .gr")
+ var got = 0
+ var out = 0
+ var n = 0
+ var i
+ for (i = 0; i < rows.length; i++) {
+  var ins = rows[i].querySelectorAll("input")
+  var g = parseFloat(ins[0].value)
+  var o = parseFloat(ins[1].value)
+  if (g != g || o != o || !o) continue
+  got += g
+  out += o
+  n++
+ }
+ var face = document.getElementById("grade-out")
+ if (!face) return
+ if (!n) { face.textContent = "type a score first"; return }
+ var pct = Math.round((got / out) * 1000) / 10
+ face.textContent = got + " / " + out + "   " + pct + "%"
+}
+function tipMath() {
+ var bill = parseFloat(document.getElementById("tip-bill").value)
+ var pct = parseFloat(document.getElementById("tip-pct").value)
+ var ppl = parseFloat(document.getElementById("tip-ppl").value)
+ var face = document.getElementById("tip-out")
+ if (!face) return
+ if (bill != bill || pct != pct || !ppl) { face.textContent = "need a bill"; return }
+ var tip = bill * pct / 100
+ var each = (bill + tip) / ppl
+ face.textContent = "tip " + (Math.round(tip * 100) / 100) + "   each " + (Math.round(each * 100) / 100)
+}
+document.getElementById("calc-modes").addEventListener("click", function(e) {
+ var mode = e.target.getAttribute && e.target.getAttribute("data-mode")
+ if (!mode) return
+ calcMode = mode
+ var btns = document.querySelectorAll("#calc-modes button")
+ var i
+ for (i = 0; i < btns.length; i++) btns[i].className = btns[i].getAttribute("data-mode") == mode ? "on" : ""
+ paintKeys()
+})
+document.getElementById("keys").addEventListener("click", function(e) {
+ var t = e.target.textContent
+ if (!t || e.target.tagName != "BUTTON") return
+ if (t == "C") clearDisplay()
+ else if (t == "\u232b") backDisplay()
+ else if (t == "=") calculate()
+ else if (t == "sin" || t == "cos" || t == "tan" || t == "log" || t == "ln") appendToDisplay(t + "(")
+ else if (t == "\u221a") appendToDisplay("\u221a(")
+ else appendToDisplay(t)
+})
+document.getElementById("calc-extra").addEventListener("click", function(e) {
+ if (e.target.id == "grade-add") {
+  var hold = document.getElementById("grade-rows")
+  if (!hold) return
+  var row = document.createElement("div")
+  row.className = "gr"
+  var a = document.createElement("input")
+  a.placeholder = "got"
+  var slash = document.createElement("span")
+  slash.textContent = "/"
+  var c = document.createElement("input")
+  c.placeholder = "out of"
+  row.appendChild(a)
+  row.appendChild(slash)
+  row.appendChild(c)
+  hold.appendChild(row)
+  return
+ }
+ if (e.target.id == "tip-go") tipMath()
+})
+document.getElementById("calc-extra").addEventListener("input", function() {
+ if (calcMode == "grade") gradeMath()
+})
+paintKeys()
 
 var musicScreen = document.querySelector("#music")
 document.querySelector("#close-music-tab").addEventListener("click", function() { closeWindow(musicScreen) })
@@ -975,7 +1157,7 @@ function grow(el) {
  var s = slot(el)
  if (!s || !s.baseW) return
  if (String(el.className).indexOf("big") != -1) return
- if (el.id == "browser" || el.id == "notes" || el.id == "cam" || el.id == "spot") {
+ if (el.id == "browser" || el.id == "notes" || el.id == "cam" || el.id == "spot" || el.id == "calculator") {
   el.style.setProperty("--sc", "1")
   if (el.id == "notes") {
    var paper = document.getElementById("notes-content")
@@ -989,6 +1171,12 @@ function grow(el) {
    var top = el.querySelector(".app-header")
    var used = (top ? top.offsetHeight : 40) + (bar ? bar.offsetHeight : 0) + 8
    if (frame) frame.style.height = Math.max(120, el.clientHeight - used) + "px"
+  }
+  if (el.id == "calculator") {
+   var pad = document.getElementById("act-calculator")
+   var cbar = el.querySelector(".app-header")
+   var cused = cbar ? cbar.offsetHeight : 40
+   if (pad) pad.style.height = Math.max(220, el.clientHeight - cused - 6) + "px"
   }
   return
  }

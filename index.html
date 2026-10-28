@@ -122,29 +122,15 @@ You can drag the windows, keep notes, snap a photo, run a timer, and pin widgets
 <button type="button" id="close-calculator-tab" class="close-button"></button>
 </div>
 <div id="act-calculator">
-<input id="display" readonly>
-<div id="keys">
-<button class="calc-button" type="button" onclick="clearDisplay()">C</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('%')">%</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('(')">(</button>
-<button class="calc-button" type="button" onclick="appendToDisplay(')')">)</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('+')">+</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('7')">7</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('8')">8</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('9')">9</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('-')">-</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('4')">4</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('5')">5</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('6')">6</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('*')">*</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('1')">1</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('2')">2</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('3')">3</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('/')">/</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('0')">0</button>
-<button class="calc-button" type="button" onclick="appendToDisplay('.')">.</button>
-<button class="calc-button" type="button" onclick="calculate()">=</button>
+<div id="calc-modes">
+<button type="button" data-mode="basic" class="on">Basic</button>
+<button type="button" data-mode="sci">Sci</button>
+<button type="button" data-mode="grade">Grade</button>
+<button type="button" data-mode="tip">Tip</button>
 </div>
+<input id="display" readonly value="">
+<div id="keys"></div>
+<div id="calc-extra"></div>
 </div>
 </div>
 <div id="music" class="app-window music-window" style="display:none;top:78px;left:500px">

@@ -926,7 +926,8 @@ function grab(el) {
   var box = clamp(el, ox + (p.clientX - sx), oy + (p.clientY - sy))
   el.style.left = box.x + "px"
   el.style.top = box.y + "px"
- }, { passive: true })
+  e.preventDefault()
+ }, { passive: false })
  document.addEventListener("touchend", function() {
   on = 0
  })
@@ -984,10 +985,8 @@ function tuck(el) {
  if (w < 200) w = 200
  el.style.left = "8px"
  el.style.width = w + "px"
- var top = iconFloor() + 8
- if (top < 96) top = 96
- el.style.top = top + "px"
- var room = window.innerHeight - top - 12
+ el.style.top = (headH() + 6) + "px"
+ var room = window.innerHeight - headH() - 18
  if (room < 160) room = 160
  var want = 320
  if (el.id == "notes" || el.id == "calculator") want = 460
@@ -1040,6 +1039,7 @@ function onSize() {
  }
  phone = now
  layIcons()
+ fitLoose()
 }
 
 window.addEventListener("resize", onSize)
@@ -1271,7 +1271,8 @@ document.addEventListener("mousemove", dragSize)
 document.addEventListener("touchmove", function(e) {
  if (!rs) return
  dragSize(e)
-}, { passive: true })
+ e.preventDefault()
+}, { passive: false })
 
 document.addEventListener("mouseup", function() {
  rs = null
@@ -1384,7 +1385,8 @@ function shove(el) {
   el.style.right = "auto"
   el.style.left = nx + "px"
   el.style.top = ny + "px"
- }, { passive: true })
+  e.preventDefault()
+ }, { passive: false })
  document.addEventListener("mouseup", function() {
   if (!on) return
   on = 0
@@ -1780,6 +1782,23 @@ function makeMenu() {
   box.style.top = e.clientY + "px"
   box.style.display = "block"
  })
+ var holdT = 0
+ document.addEventListener("touchstart", function(e) {
+  var t = e.target
+  if (t.closest && t.closest(".app-window, .app-icon, .dy, #deskclock, #deskmenu, #taskbar")) return
+  var p = e.touches && e.touches[0]
+  if (!p) return
+  var x = p.clientX
+  var y = p.clientY
+  clearTimeout(holdT)
+  holdT = setTimeout(function() {
+   box.style.left = x + "px"
+   box.style.top = y + "px"
+   box.style.display = "block"
+  }, 480)
+ }, { passive: true })
+ document.addEventListener("touchend", function() { clearTimeout(holdT) })
+ document.addEventListener("touchmove", function() { clearTimeout(holdT) }, { passive: true })
  document.addEventListener("click", function(e) {
   if (box.getAttribute("data-hold") == "1") {
    box.setAttribute("data-hold", "0")
@@ -2427,6 +2446,11 @@ showRoll()
 function layIcons() {
  var icons = document.querySelectorAll(".app-icon")
  var col = document.body.className.indexOf("cols-1") != -1 ? 1 : 2
+ if (narrow()) {
+  col = Math.floor((window.innerWidth - 16) / 88)
+  if (col < 2) col = 2
+  if (col > 4) col = 4
+ }
  var x0 = 12
  var y0 = headH() + 12
  var cw = 86
@@ -2434,7 +2458,7 @@ function layIcons() {
  var i
  for (i = 0; i < icons.length; i++) {
   var el = icons[i]
-  if (el.getAttribute("data-set") == "1") continue
+  if (!narrow() && el.getAttribute("data-set") == "1") continue
   var c = i % col
   var r = Math.floor(i / col)
   el.style.left = (x0 + c * cw) + "px"
@@ -2523,7 +2547,8 @@ function dragIcon(el) {
   if (ny < headH()) ny = headH()
   el.style.left = nx + "px"
   el.style.top = ny + "px"
- }, { passive: true })
+  e.preventDefault()
+ }, { passive: false })
  document.addEventListener("mouseup", function() {
   if (!on) return
   on = 0
@@ -2567,6 +2592,27 @@ clearBar()
 var iconNodes = document.querySelectorAll(".app-icon")
 var ii
 for (ii = 0; ii < iconNodes.length; ii++) dragIcon(iconNodes[ii])
+function fitLoose() {
+ if (!narrow()) return
+ var nodes = document.querySelectorAll("#deskclock, #deskdate, .dy")
+ var i
+ for (i = 0; i < nodes.length; i++) {
+  var el = nodes[i]
+  if (el.style.display == "none") continue
+  var w = el.offsetWidth || 90
+  if (el.offsetLeft + 40 > window.innerWidth) el.style.left = Math.max(8, window.innerWidth - w - 8) + "px"
+  if (el.offsetTop + 30 > window.innerHeight) el.style.top = Math.max(headH(), window.innerHeight - 90) + "px"
+ }
+}
+if (narrow()) {
+ var openWins = document.querySelectorAll(".app-window")
+ var wi
+ for (wi = 0; wi < openWins.length; wi++) {
+  if (openWins[wi].style.display == "none") continue
+  tuck(openWins[wi])
+ }
+ fitLoose()
+}
 
 var termAt = ""
 var termHist = []

@@ -1749,6 +1749,18 @@ body.th-night #osname b { color: #2a1810; }
 }
 #grade-out, #tip-out { font-size: 16px; color: #2a1810; }
 #calculator > .fit { transform: none; width: 100%; height: 100%; }
+@media (max-width: 720px) {
+ body { padding-right: 0; overflow-x: hidden; }
+ #osname { font-size: 16px; }
+ #taskbar { height: 48px; }
+ .app-window { max-width: calc(100vw - 12px); }
+ .grip.se, .grip.sw, .grip.ne, .grip.nw { width: 28px; height: 28px; }
+ #calc-modes button, #gal-tools button, #deskmenu button, #keys .calc-button {
+  min-height: 42px;
+ }
+ #term-in, #web-box, #note-body, #calc-extra input { font-size: 16px; }
+ #barhide { right: 8px; }
+}
 
 
 

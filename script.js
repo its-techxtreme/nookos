@@ -68,6 +68,14 @@ welcomeScreenOpen.addEventListener("click", function() {
 function closeWindow(element) {
   element.style.display = "none"
   if (element && element.id == "cam") killCam()
+  if (element && element.id == "spot") {
+    if (spotCtl) spotCtl.pause()
+    else {
+      var box = document.getElementById("spot-frame")
+      var inner = box && box.querySelector && box.querySelector("iframe")
+      if (inner) inner.src = "about:blank"
+    }
+  }
 }
 function openWindow(element) {
   element.style.display = "flex"
@@ -524,18 +532,47 @@ document.getElementById("open-spot").addEventListener("click", function(e) {
  openWindow(spotScreen)
 })
 spotScreen.addEventListener("mousedown", function() { tap(spotScreen) })
-function loadSpot() {
+function spotUri() {
  var box = document.getElementById("spot-box")
- var frame = document.getElementById("spot-frame")
- if (!frame) return
  var raw = box ? box.value : ""
  raw = raw.replace(/^https?:\/\//, "")
  raw = raw.replace(/^open\.spotify\.com\//, "")
  raw = raw.split("?")[0]
  if (raw.indexOf("embed/") == 0) raw = raw.slice(6)
  if (!raw) raw = "playlist/79FMSJmmkwHxTngEM7fxr6"
- frame.src = "https://open.spotify.com/embed/" + raw + "?utm_source=generator"
+ var bits = raw.split("/")
+ var kind = bits.length > 1 ? bits[0] : "playlist"
+ var id = bits.length > 1 ? bits[1] : bits[0]
+ return "spotify:" + kind + ":" + id
 }
+var spotCtl = null
+function loadSpot() {
+ if (spotCtl) spotCtl.loadUri(spotUri())
+}
+window.onSpotifyIframeApiReady = function(api) {
+ var el = document.getElementById("spot-frame")
+ if (!el) return
+ api.createController(el, { uri: spotUri(), width: "100%", height: "360" }, function(ctl) {
+  spotCtl = ctl
+  var made = document.querySelector("#spot iframe")
+  if (made) made.id = "spot-frame"
+  ctl.addListener("playback_update", function(e) {
+   var d = e && e.data
+   if (d && d.isPaused == false) hushLocal()
+  })
+  ctl.addListener("playback_started", function() { hushLocal() })
+ })
+}
+var spotJs = document.createElement("script")
+spotJs.src = "https://open.spotify.com/embed/iframe-api/v1"
+document.body.appendChild(spotJs)
+window.addEventListener("blur", function() {
+ setTimeout(function() {
+  var a = document.activeElement
+  if (!a) return
+  if (a.id == "spot-frame" || (a.closest && a.closest("#spot"))) hushLocal()
+ }, 0)
+})
 document.getElementById("spot-go").addEventListener("click", function(e) {
  e.stopPropagation()
  loadSpot()
@@ -551,25 +588,99 @@ var nextSongButton = document.getElementById("next-song")
 var shuffleButton = document.getElementById("shuffle-song")
 var replayButton = document.getElementById("replay-song")
 var songs = [
- { image: "pics/6.png", name: "Window Rain", artist: "Athan", audio: "sounds/rain.mp3" },
- { image: "pics/8.png", name: "Old Tape", artist: "Athan", audio: "sounds/tape.mp3" },
- { image: "pics/10.png", name: "Late Night", artist: "Athan", audio: "sounds/night.mp3" },
- { image: "pics/11.png", name: "Porch Air", artist: "Athan", audio: "sounds/air.mp3" }
+ { image: "pics/10.png", name: "Future Bass", artist: "Sigma", audio: "sounds/sigmamusicart-no-copyright-music-537751.mp3" },
+ { image: "pics/6.png", name: "Lofi Beat", artist: "Loksii", audio: "sounds/loksii-no-copyright-music-211881.mp3" },
+ { image: "pics/8.png", name: "Vlog Pop", artist: "NastelBom", audio: "sounds/nastelbom-no-copyright-music-617079.mp3" },
+ { image: "pics/11.png", name: "Electro", artist: "Sub Clair", audio: "sounds/sub_clair-no-copyright-music-instrumental-612388.mp3" }
 ]
 var audio = document.createElement("audio")
 audio.volume = 1
-var ears = null
-function wake() {
- var Ctx = window.AudioContext || window.webkitAudioContext
- if (!ears) {
-  ears = new Ctx()
-  var src = ears.createMediaElementSource(audio)
-  src.connect(ears.destination)
- }
- if (ears.state == "suspended") return ears.resume()
-}
+document.body.appendChild(audio)
 var currentSongIndex = 0
 var songRepeat = false
+var bag = {}
+var ctx = null
+var node = null
+var started = 0
+var offset = 0
+var live = 0
+function stopNode() {
+ live = 0
+ if (!node) return
+ try { node.stop() } catch (err) { console.log(err) }
+ node = null
+}
+var holdSpot = 0
+function hushLocal() {
+ if (Date.now() < holdSpot) return
+ if (!live && audio.paused) return
+ if (live) offset = clockPos()
+ stopNode()
+ audio.pause()
+ playpauseButton.innerHTML = "play"
+}
+function hushSpot() {
+ holdSpot = Date.now() + 700
+ if (spotCtl) spotCtl.pause()
+}
+function clockPos() {
+ if (!live || !ctx) return offset
+ return offset + (ctx.currentTime - started)
+}
+function spin(buf) {
+ hushSpot()
+ stopNode()
+ if (!ctx) return
+ node = ctx.createBufferSource()
+ node.buffer = buf
+ node.connect(ctx.destination)
+ if (offset >= buf.duration) offset = 0
+ started = ctx.currentTime
+ node.start(0, offset)
+ live = 1
+ playpauseButton.innerHTML = "pause"
+ node.onended = function() {
+  if (!live) return
+  live = 0
+  if (songRepeat) {
+   offset = 0
+   spin(buf)
+   return
+  }
+  offset = 0
+  playpauseButton.innerHTML = "play"
+ }
+}
+function pump(andGo) {
+ var song = songs[currentSongIndex]
+ var Ctx = window.AudioContext || window.webkitAudioContext
+ if (!Ctx) return
+ if (!ctx) ctx = new Ctx()
+ var resume = ctx.resume()
+ function go() {
+  if (bag[song.audio]) {
+   songSlider.max = bag[song.audio].duration
+   if (andGo) spin(bag[song.audio])
+   return
+  }
+  fetch(song.audio).then(function(r) {
+   if (!r.ok) throw new Error(r.status)
+   return r.arrayBuffer()
+  }).then(function(raw) {
+   return ctx.decodeAudioData(raw)
+  }).then(function(buf) {
+   bag[song.audio] = buf
+   songSlider.max = buf.duration
+   if (andGo && songs[currentSongIndex].audio == song.audio) spin(buf)
+  }).catch(function(err) {
+   console.log(err)
+   playpauseButton.innerHTML = "play"
+   songArtist.innerText = "no sound"
+  })
+ }
+ if (resume && resume.then) resume.then(go, go)
+ else go()
+}
 updateSong()
 prevSongButton.addEventListener("click", function() {
  if (currentSongIndex == 0) return
@@ -582,18 +693,28 @@ nextSongButton.addEventListener("click", function() {
  updateSong()
 })
 playpauseButton.addEventListener("click", function() {
- if (!audio.paused) {
+ if (live || !audio.paused) {
+  if (live) offset = clockPos()
+  stopNode()
   audio.pause()
   playpauseButton.innerHTML = "play"
- } else {
-  wake()
-  var kick = audio.play()
-  playpauseButton.innerHTML = "pause"
-  if (kick && kick.catch) kick.catch(function() {
-   playpauseButton.innerHTML = "play"
-   songArtist.innerText = "no sound"
-  })
+  return
  }
+ var Ctx = window.AudioContext || window.webkitAudioContext
+ if (Ctx) {
+  if (!ctx) ctx = new Ctx()
+  ctx.resume()
+ }
+ hushSpot()
+ var kick = audio.play()
+ playpauseButton.innerHTML = "pause"
+ if (kick && kick.then) kick.then(function() {
+  stopNode()
+ }).catch(function() {
+  audio.pause()
+  pump(1)
+ })
+ else pump(1)
 })
 shuffleButton.addEventListener("click", function() {
  currentSongIndex = Math.floor(Math.random() * songs.length)
@@ -613,7 +734,9 @@ function updateSong() {
  var face = document.getElementById("deskmusic-read")
  if (face) face.textContent = song.name
  songArtist.innerText = song.artist
+ stopNode()
  audio.pause()
+ offset = 0
  audio.src = song.audio
  playpauseButton.innerHTML = "play"
  songSlider.value = 0
@@ -622,10 +745,16 @@ function updateSong() {
  }
 }
 songSlider.addEventListener("change", function() {
- if (audio.duration) audio.currentTime = songSlider.value
+ offset = Number(songSlider.value) || 0
+ if (audio.duration) audio.currentTime = offset
+ if (live) {
+  var buf = bag[songs[currentSongIndex].audio]
+  if (buf) spin(buf)
+ }
 })
 setInterval(function() {
- if (audio.duration) songSlider.value = audio.currentTime
+ if (live) songSlider.value = clockPos()
+ else if (audio.duration && !audio.paused) songSlider.value = audio.currentTime
 }, 1000)
 
 var browserScreen = document.querySelector("#browser")
@@ -1013,6 +1142,7 @@ function tuck(el) {
  if (el.id == "notes" || el.id == "calculator") want = 460
  if (el.id == "browser" || el.id == "anime" || el.id == "clock" || el.id == "spot") want = 400
  if (el.id == "pomo") want = 220
+ if (el.id == "music") want = 560
  if (el.id == "settings") want = 520
  if (el.id == "widgets") want = 460
  if (el.id == "cam") want = 420

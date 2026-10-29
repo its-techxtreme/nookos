@@ -24,7 +24,7 @@ Scrapped the old Scratch App.
 
 * **Calculator:** A colored good looking , which can show Infinity & Error along with Calculations
 
-* **Music App:** Play, Pause, Next, Previous, Shuffle and Loop are the four options with Four tracks tracks available :- Window rain, Old tape, Late night, Porch air.
+* **Music App:** Play, Pause, Next, Previous, Shuffle and Loop. Four tracks. Lofi Beat, Vlog Pop, Future Bass, Electro. 
 
 * **Web Browser:** Address bar starts at webgram.techxtreme.me (My Old NewTab Stardance Project +_+). Hit go and it loads in the window. Also If you forget https it adds it.
 

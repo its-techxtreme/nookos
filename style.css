@@ -1395,6 +1395,31 @@ body.curvy #welcome { border-radius: 22px; }
 #spot-bar { display: flex; gap: 6px; padding: 8px; }
 #spot-box { flex: 1; border: 2px solid #2a1810; border-radius: 8px; padding: 4px 6px; font-family: Fredoka, Arial, sans-serif; }
 #spot-go { background: #121212; color: #fff; border: 2px solid #2a1810; border-radius: 8px; font-family: Fredoka, Arial, sans-serif; cursor: pointer; padding: 4px 10px; }
+
+#welcome { width: 480px; }
+#welcome-paragraph p { margin: 0 0 10px; }
+#welcome-paragraph .ask {
+ background: #fff6d8;
+ border: 3px solid #2a1810;
+ border-radius: 16px;
+ padding: 8px 10px;
+ box-shadow: 4px 4px 0 #ff6b6b;
+}
+#welcome-paragraph .end { margin-top: 12px; margin-bottom: 6px; }
+#welcome-set {
+ display: block;
+ background: #4ecdc4;
+ color: #2a1810;
+ border: 3px solid #2a1810;
+ border-radius: 14px;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 16px;
+ padding: 8px 12px;
+ cursor: pointer;
+ box-shadow: 3px 4px 0 #2a1810;
+}
+#welcome-set:hover { background: #8fde5d }
+#deskdate { top: 196px; right: 12px; z-index: 6; }
 #music { width: 320px; background: #2a1810; }
 #music-item-holder { padding: 16px 14px 14px; gap: 6px; }
 #disc {
@@ -1549,7 +1574,7 @@ body.th-night #taskbar {
 }
 body.th-night #osname { color: #fff6d8; }
 body.th-night #osname b { color: #2a1810; }
-#deskclock { top: 72px; }
+#deskclock { top: 58px; right: 8px; }
 #cam-stage { position: relative; width: 92%; margin: 10px auto 0; }
 #cam-stage #cam-view { width: 100%; margin: 0; }
 #cam-count {

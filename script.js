@@ -64,6 +64,10 @@ welcomeScreenClose.addEventListener("click", function() {
 welcomeScreenOpen.addEventListener("click", function() {
   openWindow(welcomeScreen)
 })
+var welcomeSet = document.getElementById("welcome-set")
+if (welcomeSet) welcomeSet.addEventListener("click", function() {
+ openWindow(document.getElementById("settings"))
+})
 
 function closeWindow(element) {
   element.style.display = "none"
@@ -1283,7 +1287,7 @@ function mins(id) {
  if (id == "music") return { w: 240, h: 220 }
  if (id == "notes") return { w: 280, h: 200 }
  if (id == "anime") return { w: 300, h: 220 }
- if (id == "welcome") return { w: 280, h: 200 }
+ if (id == "welcome") return { w: 320, h: 340 }
  if (id == "pomo") return { w: 200, h: 150 }
  if (id == "cam") return { w: 260, h: 220 }
  return { w: 200, h: 150 }
@@ -1845,16 +1849,31 @@ function paintTodo() {
 }
 function stackChips() {
  var ids = ["desktimer", "deskmusic", "deskpin", "desknotes"]
- var y = 300
+ var rights = [10, 22, 8, 16]
  var date = document.getElementById("deskdate")
- if (date) y = date.offsetTop + date.offsetHeight + 12
+ var y = 214
+ if (date && !date.style.left) {
+  date.style.top = "196px"
+  date.style.right = "12px"
+  date.style.zIndex = "6"
+  y = date.offsetTop + date.offsetHeight - 22
+ }
  var i
  for (i = 0; i < ids.length; i++) {
   var el = document.getElementById(ids[i])
   if (!el) continue
   if (el.style.left) continue
+  el.style.right = rights[i] + "px"
   el.style.top = y + "px"
-  y = y + el.offsetHeight + 10
+  el.style.zIndex = String(7 + i)
+  y = y + el.offsetHeight - 18
+ }
+ var photo = document.getElementById("deskphoto")
+ if (photo && (!photo.style.left || photo.style.left == "auto")) {
+  photo.style.top = "74px"
+  photo.style.right = "140px"
+  photo.style.left = "auto"
+  photo.style.zIndex = "5"
  }
 }
 

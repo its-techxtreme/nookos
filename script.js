@@ -765,10 +765,43 @@ var browserScreen = document.querySelector("#browser")
 document.querySelector("#close-browser-tab").addEventListener("click", function() { closeWindow(browserScreen) })
 document.querySelector("#open-browser-tab").addEventListener("click", function() { openWindow(browserScreen) })
 browserScreen.addEventListener("mousedown", function() { tap(browserScreen) })
+var webHome = "https://webgram.techxtreme.me/"
+function showWeb(frame, html) {
+ var base = "<base href=\"" + webHome + "\">"
+ if (html.indexOf("<head>") != -1) html = html.replace("<head>", "<head>" + base)
+ else html = base + html
+ html = html.replace("action=\"https://www.google.com/search\"", "action=\"https://www.google.com/search\" target=\"_blank\"")
+ frame.setAttribute("sandbox", "allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox")
+ frame.removeAttribute("src")
+ frame.srcdoc = html
+}
+function bootWeb() {
+ var frame = document.getElementById("web-frame")
+ if (!frame) return
+ fetch(webHome).then(function(r) {
+  if (!r.ok) throw new Error("web " + r.status)
+  return r.text()
+ }).then(function(html) {
+  showWeb(frame, html)
+ }).catch(function(err) {
+  console.log(err)
+  frame.removeAttribute("sandbox")
+  frame.removeAttribute("srcdoc")
+  frame.src = webHome
+ })
+}
+bootWeb()
 document.getElementById("go-web").addEventListener("click", function() {
- var u = document.getElementById("web-box").value
+ var u = document.getElementById("web-box").value.replace(/^\s+|\s+$/g, "")
  if (u.indexOf("http") != 0) u = "https://" + u
- document.getElementById("web-frame").src = u
+ var frame = document.getElementById("web-frame")
+ if (u.indexOf("webgram.techxtreme.me") != -1) {
+  bootWeb()
+  return
+ }
+ frame.removeAttribute("sandbox")
+ frame.removeAttribute("srcdoc")
+ frame.src = u
 })
 
 var pomoScreen = document.querySelector("#pomo")
@@ -1682,8 +1715,8 @@ function makeChips() {
  var photo = document.createElement("div")
  photo.id = "deskphoto"
  photo.className = "dy po"
- photo.style.top = "108px"
- photo.style.right = "228px"
+ photo.style.top = "104px"
+ photo.style.right = "230px"
  photo.style.left = "auto"
  var tack = document.createElement("div")
  tack.className = "tk"
@@ -1849,31 +1882,32 @@ function paintTodo() {
 }
 function stackChips() {
  var ids = ["desktimer", "deskmusic", "deskpin", "desknotes"]
- var rights = [10, 22, 8, 16]
  var date = document.getElementById("deskdate")
- var y = 214
- if (date && !date.style.left) {
-  date.style.top = "196px"
-  date.style.right = "12px"
+ var y = 292
+ if (date && (!date.style.left || date.style.left == "auto")) {
+  date.style.top = "200px"
+  date.style.right = "10px"
+  date.style.left = "auto"
   date.style.zIndex = "6"
-  y = date.offsetTop + date.offsetHeight - 22
+  y = date.offsetTop + date.offsetHeight - 10
  }
  var i
  for (i = 0; i < ids.length; i++) {
   var el = document.getElementById(ids[i])
   if (!el) continue
-  if (el.style.left) continue
-  el.style.right = rights[i] + "px"
+  if (el.style.left && el.style.left != "auto") continue
+  el.style.left = "auto"
+  el.style.right = "10px"
   el.style.top = y + "px"
   el.style.zIndex = String(7 + i)
-  y = y + el.offsetHeight - 18
+  y = y + el.offsetHeight - 10
  }
  var photo = document.getElementById("deskphoto")
  if (photo && (!photo.style.left || photo.style.left == "auto")) {
-  photo.style.top = "74px"
-  photo.style.right = "140px"
+  photo.style.top = "104px"
+  photo.style.right = "230px"
   photo.style.left = "auto"
-  photo.style.zIndex = "5"
+  photo.style.zIndex = "3"
  }
 }
 

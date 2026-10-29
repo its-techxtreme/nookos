@@ -1419,7 +1419,7 @@ body.curvy #welcome { border-radius: 22px; }
  box-shadow: 3px 4px 0 #2a1810;
 }
 #welcome-set:hover { background: #8fde5d }
-#deskdate { top: 196px; right: 12px; z-index: 6; }
+#deskdate { top: 200px; right: 10px; z-index: 6; }
 #music { width: 320px; background: #2a1810; }
 #music-item-holder { padding: 16px 14px 14px; gap: 6px; }
 #disc {

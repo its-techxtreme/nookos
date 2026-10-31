@@ -1968,6 +1968,187 @@ body.th-night #osname b { color: #2a1810; }
 }
 .dk.dir.hot b { background: #ffe56a; }
 .dk.hot { z-index: 32; }
+#files > .fit {
+ flex: 1;
+ min-height: 0;
+ display: flex;
+ flex-direction: column;
+ overflow: hidden;
+ width: 100%;
+ transform: none;
+}
+#files-list { overflow-y: scroll; }
+#files-list::-webkit-scrollbar { width: 12px; }
+#files-list::-webkit-scrollbar-thumb { background: #2a1810; border-radius: 8px; }
+#files-list::-webkit-scrollbar-track { background: #f0c230; }
+#widgets, #settings, #gal, #cam, #anime {
+ overflow: hidden;
+ display: flex;
+ flex-direction: column;
+}
+.app-header {
+ flex: 0 0 auto;
+ position: relative;
+ z-index: 7;
+}
+.app-window:not(.big) > .fit {
+ flex: 1 1 auto;
+ min-height: 0;
+ overflow-x: hidden;
+ overflow-y: auto;
+ max-height: calc(72vh - 70px);
+}
+#term > .fit, #files > .fit, #pad > .fit, #calculator > .fit { overflow: hidden; max-height: none; }
+#widgets { width: 340px; background: #efe4ff; }
+#widgets .fit > p { margin: 10px 14px 2px; font-size: 14px; color: #2a1810; }
+#wig-list { padding: 8px 12px 14px; }
+.wr {
+ display: flex;
+ align-items: center;
+ gap: 8px;
+ background: #fffaf2;
+ border: 3px solid #2a1810;
+ border-radius: 16px;
+ margin: 0 0 8px;
+ padding: 8px 8px 8px 12px;
+}
+.wr b { display: block; font-size: 16px; }
+.wr span { display: block; font-size: 13px; color: #6a5344; }
+.wr i { flex: 1; font-style: normal; }
+#wig-list button {
+ display: inline-block;
+ width: auto;
+ margin: 0;
+ text-align: center;
+ background: #4ecdc4;
+ border: 2px solid #2a1810;
+ border-radius: 12px;
+ padding: 6px 12px;
+}
+#wig-list button.off { background: #ff6b6b; color: #fffaf2; }
+.wr.on { background: #fff4cc; }
+#calc-ang {
+ display: none;
+ gap: 6px;
+ margin: 6px 2px 0;
+}
+#calc-ang button {
+ border: 2px solid #2a1810;
+ border-radius: 10px;
+ background: #fff6d8;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 3px 12px;
+ cursor: pointer;
+}
+#calc-ang button.on { background: #f0c230; }
+.app-window:not(.big):not(#browser):not(#notes) > .fit {
+ transform: none;
+}
+#nmbox {
+ position: fixed;
+ z-index: 90;
+ height: 22px;
+ border: 2px solid #2a1810;
+ background: #2a6fdb;
+ color: #fffaf2;
+ font-family: Fredoka, Arial, sans-serif;
+ font-size: 13px;
+ text-align: center;
+ padding: 0 3px;
+ border-radius: 3px;
+}
+#open-store-tab { background: #8fde5d; }
+#store {
+ width: 440px;
+ background: #fffaf2;
+ max-height: 76vh;
+ overflow: hidden;
+ display: flex;
+ flex-direction: column;
+}
+#store .header-title { font-size: 1.35rem; }
+#store .fit > p { margin: 8px 14px 0; font-size: 14px; }
+#store-list { padding: 8px 12px 16px; }
+.sr {
+ display: flex;
+ flex-wrap: wrap;
+ align-items: center;
+ gap: 8px;
+ background: #fff6d8;
+ border: 3px solid #2a1810;
+ border-radius: 16px;
+ margin: 0 0 8px;
+ padding: 8px;
+}
+.sr > i {
+ width: 42px;
+ height: 42px;
+ border: 3px solid #2a1810;
+ border-radius: 12px;
+ flex: none;
+}
+.sr em { flex: 1; font-style: normal; min-width: 140px; }
+.sr b { display: block; font-size: 16px; }
+.sr span { display: block; font-size: 13px; color: #6a5344; }
+.sr button {
+ border: 2px solid #2a1810;
+ border-radius: 12px;
+ background: #4ecdc4;
+ color: #2a1810;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 6px 12px;
+ cursor: pointer;
+}
+.sr button.op { background: #f0c230; }
+.sr s {
+ display: none;
+ flex: 1 0 100%;
+ height: 12px;
+ margin: 2px 2px 0;
+ background: #fffaf2;
+ border: 2px solid #2a1810;
+ border-radius: 8px;
+ overflow: hidden;
+}
+.sr s.on { display: block; }
+.sr u {
+ display: block;
+ width: 0;
+ height: 100%;
+ background: #f0c230;
+ text-decoration: none;
+}
+.sr s { text-decoration: none; }
+#bye {
+ position: fixed;
+ z-index: 96;
+ left: 0;
+ top: 0;
+ right: 0;
+ bottom: 0;
+ background: rgba(42,24,16,.35);
+}
+#bye .card {
+ width: 280px;
+ margin: 22vh auto 0;
+ background: #fff6d8;
+ border: 4px solid #2a1810;
+ border-radius: 16px;
+ padding: 16px 14px 12px;
+ box-shadow: 6px 7px 0 #2a1810;
+}
+#bye p { margin: 0 0 14px; font-size: 16px; color: #2a1810; }
+#bye button {
+ border: 2px solid #2a1810;
+ border-radius: 12px;
+ font-family: Fredoka, Arial, sans-serif;
+ padding: 6px 14px;
+ cursor: pointer;
+ margin-right: 8px;
+}
+#bye button.go { background: #ff6b6b; color: #fffaf2; }
+#bye button.no { background: #fffaf2; color: #2a1810; }
 
 
 

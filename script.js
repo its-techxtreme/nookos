@@ -115,7 +115,8 @@ var iconFor = {
  widgets: "open-wig-tab",
  term: "open-term-tab",
  files: "open-files-tab",
- pad: "open-pad-tab"
+ pad: "open-pad-tab",
+ store: "open-store-tab"
 }
 
 // old zoom used data-big and slid under the bar
@@ -325,6 +326,7 @@ calcScreen.addEventListener("mousedown", function() { tap(calcScreen) })
 
 var display = document.getElementById("display")
 var calcMode = "basic"
+var calcAng = "deg"
 function appendToDisplay(input) {
  display.value += input
 }
@@ -350,9 +352,12 @@ function calculate() {
   }
   while (open > 0) { raw += ")"; open-- }
   raw = raw.replace(/\^/g, "**")
-  raw = raw.replace(/sin/g, "dsin")
-  raw = raw.replace(/cos/g, "dcos")
-  raw = raw.replace(/tan/g, "dtan")
+  var sfn = calcAng == "rad" ? "Math.sin" : "dsin"
+  var cfn = calcAng == "rad" ? "Math.cos" : "dcos"
+  var tfn = calcAng == "rad" ? "Math.tan" : "dtan"
+  raw = raw.replace(/sin/g, sfn)
+  raw = raw.replace(/cos/g, cfn)
+  raw = raw.replace(/tan/g, tfn)
   raw = raw.replace(/log/g, "Math.log10")
   raw = raw.replace(/ln/g, "Math.log")
   raw = raw.replace(/%/g, "/100")
@@ -382,6 +387,8 @@ function paintKeys() {
  display.style.display = (calcMode == "basic" || sci) ? "" : "none"
  box.innerHTML = ""
  extra.innerHTML = ""
+ var ang = document.getElementById("calc-ang")
+ if (ang) ang.style.display = sci ? "flex" : "none"
  if (calcMode == "basic" || sci) {
   var list = sci ? sciKeys : basicKeys
   var i
@@ -394,6 +401,8 @@ function paintKeys() {
    else if ("+-*/%^".indexOf(list[i]) != -1 || list[i] == "\u221a") b.className += " op"
    box.appendChild(b)
   }
+  var ang = document.getElementById("calc-ang")
+  if (ang) ang.style.display = sci ? "flex" : "none"
   return
  }
  if (calcMode == "grade") {
@@ -495,6 +504,14 @@ document.getElementById("calc-modes").addEventListener("click", function(e) {
  paintKeys()
  sizeCalc()
 })
+document.getElementById("calc-ang").addEventListener("click", function(e) {
+ var a = e.target.getAttribute && e.target.getAttribute("data-ang")
+ if (!a) return
+ calcAng = a
+ var btns = document.querySelectorAll("#calc-ang button")
+ var i
+ for (i = 0; i < btns.length; i++) btns[i].className = btns[i].getAttribute("data-ang") == a ? "on" : ""
+})
 document.getElementById("keys").addEventListener("click", function(e) {
  var t = e.target.textContent
  if (!t || e.target.tagName != "BUTTON") return
@@ -531,7 +548,7 @@ document.getElementById("calc-extra").addEventListener("input", function() {
 function sizeCalc() {
  var el = document.getElementById("calculator")
  if (!el || String(el.className).indexOf("big") != -1) return
- var box = { basic: [300, 500], sci: [300, 620], grade: [360, 480], tip: [300, 400] }
+ var box = { basic: [300, 500], sci: [300, 660], grade: [360, 480], tip: [300, 400] }
  var pick = box[calcMode] || box.basic
  var w = pick[0]
  var h = pick[1]
@@ -1333,7 +1350,7 @@ document.addEventListener("touchstart", function(e) {
 function mins(id) {
  if (id == "calculator") {
   if (calcMode == "grade") return { w: 330, h: 400 }
-  if (calcMode == "sci") return { w: 280, h: 500 }
+  if (calcMode == "sci") return { w: 280, h: 540 }
   if (calcMode == "tip") return { w: 260, h: 320 }
   return { w: 280, h: 440 }
  }
@@ -1392,7 +1409,7 @@ function grow(el) {
   return
  }
  var fit = el.querySelector(".fit")
- if (fit) fit.style.width = s.baseW + "px"
+ if (fit) fit.style.width = ""
  var head = el.querySelector(".app-header")
  var hh = head ? head.offsetHeight : 40
  var bh = s.baseH - hh
@@ -1939,38 +1956,57 @@ function paintWig() {
  var box = document.getElementById("wig-list")
  if (!box) return
  var bits = [
-  ["deskclock", "Clock"],
-  ["deskdate", "Date"],
-  ["desktimer", "Timer"],
-  ["deskmusic", "Music"],
-  ["deskpin", "Pin"],
-  ["desknotes", "Notes"],
-  ["deskphoto", "Anime"],
-  ["deskquote", "Quote"],
-  ["desktodo", "To do"],
-  ["deskspot", "Spotify"]
+  ["deskclock", "Clock", "the round one"],
+  ["deskdate", "Date", "sits by the clock"],
+  ["desktimer", "Timer", "the pink 25:00"],
+  ["deskmusic", "Music", "what's playing"],
+  ["deskpin", "Pin", "a little note"],
+  ["desknotes", "Keep Notes", "how many stickies"],
+  ["deskphoto", "Anime", "the photo"],
+  ["deskquote", "Quote", "the pink card"],
+  ["desktodo", "To do", "the blue list"],
+  ["deskspot", "Spotify", "the player"]
  ]
  box.innerHTML = ""
  var i
  for (i = 0; i < bits.length; i++) {
   var id = bits[i][0]
   var el = document.getElementById(id)
-  var b = document.createElement("button")
-  b.type = "button"
-  b.setAttribute("data-bit", id)
   var on = el && el.style.display != "none"
-  b.textContent = on ? bits[i][1] + " is on the desk" : bits[i][1]
-  if (on) b.className = "on"
-  box.appendChild(b)
+  var row = document.createElement("div")
+  row.className = on ? "wr on" : "wr"
+  var name = document.createElement("b")
+  name.textContent = bits[i][1]
+  var sub = document.createElement("span")
+  sub.textContent = bits[i][2]
+  var lab = document.createElement("i")
+  lab.appendChild(name)
+  lab.appendChild(sub)
+  var act = document.createElement("button")
+  act.type = "button"
+  act.setAttribute("data-bit", id)
+  act.textContent = on ? "Hide" : "Add"
+  if (on) act.className = "off"
+  row.appendChild(lab)
+  row.appendChild(act)
+  box.appendChild(row)
  }
 }
 document.getElementById("wig-list").addEventListener("click", function(e) {
- var id = e.target.getAttribute && e.target.getAttribute("data-bit")
+ var btn = e.target.closest && e.target.closest("button")
+ if (!btn) return
+ var id = btn.getAttribute("data-bit")
  if (!id) return
  var el = document.getElementById(id)
  if (!el) return
- if (el.style.display != "none") return
- el.style.display = ""
+ var bar = el.querySelector(".wg")
+ if (el.style.display != "none") {
+  el.style.display = "none"
+  if (bar) bar.style.display = "none"
+ } else {
+  el.style.display = ""
+  if (bar) bar.style.display = ""
+ }
  stashWidgets()
  paintWig()
 })
@@ -2041,43 +2077,10 @@ function makeMenu() {
    return
   }
   if (act == "del") {
-   dropItem(id)
+   askDrop(id)
    return
   }
-  var next = prompt("new name", f.name)
-  if (next == null) return
-  next = cleanName(next)
-  if (!next) return
-  if (f.kind == "txt" || f.kind == "md") {
-   var fixed = tackExt(next, f.kind)
-   next = fixed.name
-   f.kind = fixed.kind
-  }
-  if (nameTaken(f.parent, next, f.id)) {
-   var path = document.getElementById("files-path")
-   if (path) path.textContent = "already there"
-   return
-  }
-  var list = pullFiles()
-  var i
-  for (i = 0; i < list.length; i++) {
-   if (String(list[i].id) != String(f.id)) continue
-   list[i].name = next
-   if (f.kind == "txt" || f.kind == "md") list[i].kind = f.kind
-   stashFiles(list)
-   break
-  }
-  if (String(padId) == String(f.id)) {
-   var nameEl = document.getElementById("pad-name")
-   var title = document.querySelector("#pad .header-title")
-   if (nameEl) nameEl.value = next
-   if (title) title.textContent = next + " - Notepad"
-  }
-  if (String(termAt) == String(f.id)) {
-   var pr = document.getElementById("term-prompt")
-   if (pr) pr.textContent = termPath() + ">"
-  }
-  paintFiles()
+  nameBox(id, pick.getAttribute("data-where"))
  })
  document.body.appendChild(box)
  box.addEventListener("click", function(e) {
@@ -2112,6 +2115,7 @@ function makeMenu() {
   if (hitId) {
    e.preventDefault()
    pick.setAttribute("data-id", hitId)
+   pick.setAttribute("data-where", row ? "files" : "desk")
    pick.style.left = e.clientX + "px"
    pick.style.top = e.clientY + "px"
    pick.style.display = "block"
@@ -2808,13 +2812,13 @@ function layIcons() {
   x0 = 8
   cw = 70
   ch = 72
-  var want = ["openWelcomeTab","openAnimeTab","open-calculator-tab","open-music-tab","open-pomo-tab","open-set-tab","open-gal-tab","open-cam-tab","open-browser-tab","open-notes-tab","open-term-tab","open-files-tab","open-pad-tab","open-wig-tab"]
+  var want = ["openWelcomeTab","openAnimeTab","open-calculator-tab","open-music-tab","open-pomo-tab","open-set-tab","open-gal-tab","open-cam-tab","open-browser-tab","open-notes-tab","open-term-tab","open-files-tab","open-store-tab","open-pad-tab","open-wig-tab"]
   var placed = {}
   var n = 0
   var k
   for (k = 0; k < want.length; k++) {
    var one = document.getElementById(want[k])
-   if (!one) continue
+   if (!one || one.style.display == "none") continue
    one.style.left = (x0 + (n % col) * cw) + "px"
    one.style.top = (y0 + Math.floor(n / col) * ch) + "px"
    placed[want[k]] = 1
@@ -2822,7 +2826,7 @@ function layIcons() {
   }
   var i2
   for (i2 = 0; i2 < icons.length; i2++) {
-   if (placed[icons[i2].id]) continue
+   if (placed[icons[i2].id] || icons[i2].style.display == "none") continue
    icons[i2].style.left = (x0 + (n % col) * cw) + "px"
    icons[i2].style.top = (y0 + Math.floor(n / col) * ch) + "px"
    n++
@@ -2830,13 +2834,16 @@ function layIcons() {
   return
  }
  var i
+ var n = 0
  for (i = 0; i < icons.length; i++) {
   var el = icons[i]
+  if (el.style.display == "none") continue
   if (!narrow() && el.getAttribute("data-set") == "1") continue
-  var c = i % col
-  var r = Math.floor(i / col)
+  var c = n % col
+  var r = Math.floor(n / col)
   el.style.left = (x0 + c * cw) + "px"
   el.style.top = (y0 + r * ch) + "px"
+  n++
  }
 }
 function stashIcons() {
@@ -2960,8 +2967,226 @@ document.getElementById("barhide").addEventListener("click", function(e) {
  e.stopPropagation()
  document.getElementById("taskbar").style.display = "none"
 })
+var shelf = [
+ ["welcome", "openWelcomeTab", "Welcome", "the hello note from Athan", "#f0c230", 1],
+ ["music", "open-music-tab", "Music", "four songs on the disc", "#d9a5e8", 1],
+ ["cam", "open-cam-tab", "Camera", "snap a photo", "#ffb3c1", 1],
+ ["term", "open-term-tab", "Terminal", "type help and poke around", "#2a1810", 1],
+ ["files", "open-files-tab", "Explorer", "the colorful-nookos folder", "#d9a5e8", 1],
+ ["settings", "open-set-tab", "Settings", "wallpaper theme and the look", "#fff6d8", 1],
+ ["anime", "openAnimeTab", "Anime", "the photo and that wallpaper", "#4ecdc4", 1],
+ ["browser", "open-browser-tab", "Web", "Webgram in its own window", "#5ad0e8", 1],
+ ["widgets", "open-wig-tab", "Widgets", "clock quote to do the rest", "#f0c230", 1],
+ ["notes", "open-notes-tab", "Keep Notes", "stickies that stay put", "#8fde5d", 0],
+ ["calculator", "open-calculator-tab", "Calc", "sci grade tip the lot", "#ff6b6b", 0],
+ ["pomo", "open-pomo-tab", "Timer", "the pink 25 minute one", "#f7e7a2", 0],
+ ["gal", "open-gal-tab", "Gallery", "the shots you kept", "#fff6d8", 0],
+ ["pad", "open-pad-tab", "Notepad", "a real txt or a markdown", "#fffaf2", 0]
+]
+function gotList() {
+ var raw = ""
+ try { raw = localStorage.getItem("nook-got") || "" } catch (err) { raw = "" }
+ if (!raw) return []
+ try {
+  var list = JSON.parse(raw)
+  if (!list || typeof list.length != "number") return []
+  return list
+ } catch (err) {
+  console.log(err)
+  return []
+ }
+}
+function hasGot(win) {
+ var i
+ for (i = 0; i < shelf.length; i++) if (shelf[i][0] == win && shelf[i][5]) return 1
+ var list = gotList()
+ for (i = 0; i < list.length; i++) if (list[i] == win) return 1
+ return 0
+}
+function showIcons() {
+ var i
+ for (i = 0; i < shelf.length; i++) {
+  var ic = document.getElementById(shelf[i][1])
+  if (!ic) continue
+  ic.style.display = hasGot(shelf[i][0]) ? "" : "none"
+ }
+}
+function tuckIcon(el) {
+ el.style.display = ""
+ var colN = 2
+ if (!narrow() && document.body.className.indexOf("cols-1") != -1) colN = 1
+ var cw = narrow() ? 70 : 86
+ var ch = narrow() ? 72 : 108
+ var icons = document.querySelectorAll(".app-icon")
+ var mates = []
+ var i
+ for (i = 0; i < icons.length; i++) {
+  if (icons[i] == el || icons[i].style.display == "none") continue
+  mates.push(icons[i])
+ }
+ var x0 = narrow() ? 8 : 12
+ var y0 = headH() + 12
+ var dir = 1
+ if (mates.length) {
+  var top = mates[0]
+  for (i = 1; i < mates.length; i++) if (mates[i].offsetTop < top.offsetTop) top = mates[i]
+  var bandL = top
+  var bandR = top
+  for (i = 0; i < mates.length; i++) {
+   if (Math.abs(mates[i].offsetTop - top.offsetTop) > 36) continue
+   if (mates[i].offsetLeft < bandL.offsetLeft) bandL = mates[i]
+   if (mates[i].offsetLeft > bandR.offsetLeft) bandR = mates[i]
+  }
+  y0 = top.offsetTop
+  if (bandR.offsetLeft > window.innerWidth * 0.5) {
+   x0 = bandR.offsetLeft
+   dir = -1
+  } else x0 = bandL.offsetLeft
+  if (bandL != bandR) {
+   var gap = Math.abs(bandR.offsetLeft - bandL.offsetLeft)
+   if (gap > 50 && gap < 160) cw = gap
+  }
+  var under = null
+  for (i = 0; i < mates.length; i++) {
+   if (Math.abs(mates[i].offsetLeft - x0) > 28) continue
+   if (mates[i].offsetTop - y0 < 40) continue
+   if (!under || mates[i].offsetTop < under.offsetTop) under = mates[i]
+  }
+  if (under) {
+   var rowGap = under.offsetTop - y0
+   if (rowGap > 60 && rowGap < 190) ch = rowGap
+  }
+ }
+ var taken = {}
+ for (i = 0; i < mates.length; i++) {
+  var dx = dir == 1 ? mates[i].offsetLeft - x0 : x0 - mates[i].offsetLeft
+  var c = Math.round(dx / cw)
+  var r = Math.round((mates[i].offsetTop - y0) / ch)
+  if (c < 0) c = 0
+  if (r < 0) r = 0
+  if (c > colN - 1) c = colN - 1
+  taken[r + "-" + c] = 1
+ }
+ var n = 0
+ while (taken[Math.floor(n / colN) + "-" + (n % colN)] && n < 48) n++
+ var x = x0 + dir * (n % colN) * cw
+ var y = y0 + Math.floor(n / colN) * ch
+ if (x < 4) x = 4
+ if (y < headH()) y = headH()
+ if (x > window.innerWidth - 80) x = window.innerWidth - 80
+ el.style.left = Math.round(x) + "px"
+ el.style.top = Math.round(y) + "px"
+ el.setAttribute("data-set", "1")
+ stashIcons()
+}
+function paintShelf() {
+ var box = document.getElementById("store-list")
+ if (!box) return
+ box.innerHTML = ""
+ var i
+ for (i = 0; i < shelf.length; i++) {
+  var row = document.createElement("div")
+  row.className = "sr"
+  var chip = document.createElement("i")
+  chip.style.background = shelf[i][4]
+  var name = document.createElement("b")
+  name.textContent = shelf[i][2]
+  var sub = document.createElement("span")
+  sub.textContent = shelf[i][3]
+  var lab = document.createElement("em")
+  lab.appendChild(name)
+  lab.appendChild(sub)
+  var bar = document.createElement("s")
+  var fill = document.createElement("u")
+  bar.appendChild(fill)
+  var btn = document.createElement("button")
+  btn.type = "button"
+  btn.setAttribute("data-app", shelf[i][0])
+  if (hasGot(shelf[i][0])) {
+   btn.textContent = "Open"
+   btn.className = "op"
+  } else btn.textContent = "Get it"
+  row.appendChild(chip)
+  row.appendChild(lab)
+  row.appendChild(btn)
+  row.appendChild(bar)
+  box.appendChild(row)
+ }
+}
+function fetchApp(win, row) {
+ var btn = row.querySelector("button")
+ var bar = row.querySelector("s")
+ var fill = row.querySelector("u")
+ var sub = row.querySelector("span")
+ if (!btn) return
+ btn.setAttribute("data-busy", "1")
+ btn.textContent = "Getting"
+ if (bar) bar.className = "on"
+ var note = ""
+ var i
+ for (i = 0; i < shelf.length; i++) if (shelf[i][0] == win) note = shelf[i][3]
+ if (sub) sub.textContent = "loading it onto the desk"
+ var n = 0
+ var tick = setInterval(function() {
+  n += 8
+  if (n > 100) n = 100
+  if (fill) fill.style.width = n + "%"
+  if (n < 100) return
+  clearInterval(tick)
+  var list = gotList()
+  var seen = 0
+  for (i = 0; i < list.length; i++) if (list[i] == win) seen = 1
+  if (!seen) list.push(win)
+  try { localStorage.setItem("nook-got", JSON.stringify(list)) } catch (err) { console.log(err) }
+  var iconId = ""
+  for (i = 0; i < shelf.length; i++) if (shelf[i][0] == win) iconId = shelf[i][1]
+  var ic = iconId && document.getElementById(iconId)
+  if (ic) tuckIcon(ic)
+  if (sub) sub.textContent = note
+  if (bar) bar.className = ""
+  btn.removeAttribute("data-busy")
+  btn.textContent = "Open"
+  btn.className = "op"
+ }, 80)
+}
+var storeWin = document.getElementById("store")
+if (storeWin) {
+ document.getElementById("close-store-tab").addEventListener("click", function() { closeWindow(storeWin) })
+ document.getElementById("open-store-tab").addEventListener("click", function() {
+  openWindow(storeWin)
+  paintShelf()
+ })
+ storeWin.addEventListener("mousedown", function() { tap(storeWin) })
+ var storeList = document.getElementById("store-list")
+ if (storeList) storeList.addEventListener("click", function(e) {
+  var btn = e.target.closest && e.target.closest("button")
+  if (!btn) return
+  var win = btn.getAttribute("data-app")
+  if (!win) return
+  if (hasGot(win)) {
+   var w = document.getElementById(win)
+   if (w) openWindow(w)
+   return
+  }
+  if (btn.getAttribute("data-busy")) return
+  fetchApp(win, btn.parentNode)
+ })
+}
 pullIcons()
-layIcons()
+showIcons()
+if (narrow()) layIcons()
+else {
+ var loose = document.querySelectorAll(".app-icon")
+ var pending = []
+ var li
+ for (li = 0; li < loose.length; li++) {
+  if (loose[li].style.display == "none") continue
+  if (loose[li].getAttribute("data-set") == "1") continue
+  loose[li].style.display = "none"
+  pending.push(loose[li])
+ }
+ for (li = 0; li < pending.length; li++) tuckIcon(pending[li])
+}
 clearBar()
 var iconNodes = document.querySelectorAll(".app-icon")
 var ii
@@ -3306,25 +3531,158 @@ function parkOut(id, left, top) {
  paintFiles()
  return 1
 }
+function applyName(id, raw) {
+ var f = fileById(id)
+ if (!f) return
+ var next = cleanName(raw)
+ if (!next) { paintFiles(); return }
+ if (f.kind == "txt" || f.kind == "md") {
+  var fixed = tackExt(next, f.kind)
+  next = fixed.name
+  f.kind = fixed.kind
+ }
+ if (next == f.name) { paintFiles(); return }
+ if (nameTaken(f.parent, next, f.id)) {
+  var path = document.getElementById("files-path")
+  if (path) path.textContent = "already there"
+  paintFiles()
+  return
+ }
+ var list = pullFiles()
+ var i
+ for (i = 0; i < list.length; i++) {
+  if (String(list[i].id) != String(f.id)) continue
+  list[i].name = next
+  if (f.kind == "txt" || f.kind == "md") list[i].kind = f.kind
+  stashFiles(list)
+  break
+ }
+ if (String(padId) == String(f.id)) {
+  var nameEl = document.getElementById("pad-name")
+  var title = document.querySelector("#pad .header-title")
+  if (nameEl) nameEl.value = next
+  if (title) title.textContent = next + " - Notepad"
+ }
+ if (String(termAt) == String(f.id)) {
+  var pr = document.getElementById("term-prompt")
+  if (pr) pr.textContent = termPath() + ">"
+ }
+ paintFiles()
+}
+function nameBox(id, where) {
+ var f = fileById(id)
+ if (!f) return
+ var old = document.getElementById("nmbox")
+ if (old && old.parentNode) old.parentNode.removeChild(old)
+ var anchor = null
+ var nodes
+ var i
+ if (where == "files") {
+  nodes = document.querySelectorAll("#files-list button")
+  for (i = 0; i < nodes.length; i++) if (nodes[i].getAttribute("data-id") == String(id)) anchor = nodes[i]
+ }
+ if (!anchor) {
+  nodes = document.querySelectorAll(".dk")
+  for (i = 0; i < nodes.length; i++) if (nodes[i].getAttribute("data-desk") == String(id)) anchor = nodes[i].querySelector("span") || nodes[i]
+ }
+ if (!anchor) return
+ var r = anchor.getBoundingClientRect()
+ var inp = document.createElement("input")
+ inp.id = "nmbox"
+ inp.value = f.name
+ inp.style.left = r.left + "px"
+ inp.style.top = (r.bottom - 22) + "px"
+ inp.style.width = Math.max(r.width, 86) + "px"
+ document.body.appendChild(inp)
+ var killed = 0
+ function close(save) {
+  if (killed) return
+  killed = 1
+  var typed = inp.value
+  if (inp.parentNode) inp.parentNode.removeChild(inp)
+  if (save) applyName(id, typed)
+  else paintFiles()
+ }
+ inp.addEventListener("keydown", function(e) {
+  e.stopPropagation()
+  if (e.key == "Enter") { e.preventDefault(); close(1) }
+  if (e.key == "Escape") { e.preventDefault(); close(0) }
+ })
+ inp.addEventListener("mousedown", function(e) { e.stopPropagation() })
+ inp.addEventListener("click", function(e) { e.stopPropagation() })
+ inp.addEventListener("blur", function() { close(1) })
+ setTimeout(function() {
+  if (killed || !inp.parentNode) return
+  inp.focus()
+  inp.select()
+ }, 30)
+}
+function askDrop(id) {
+ var f = fileById(id)
+ if (!f) return
+ var old = document.getElementById("bye")
+ if (old && old.parentNode) old.parentNode.removeChild(old)
+ var shade = document.createElement("div")
+ shade.id = "bye"
+ var card = document.createElement("div")
+ card.className = "card"
+ var p = document.createElement("p")
+ var word = f.kind == "dir" ? "folder" : "file"
+ p.textContent = "You are deleting this " + word + " permanently. It cannot be recovered."
+ var go = document.createElement("button")
+ go.type = "button"
+ go.className = "go"
+ go.textContent = "Delete"
+ var no = document.createElement("button")
+ no.type = "button"
+ no.className = "no"
+ no.textContent = "Cancel"
+ card.appendChild(p)
+ card.appendChild(go)
+ card.appendChild(no)
+ shade.appendChild(card)
+ document.body.appendChild(shade)
+ function shut() {
+  if (shade.parentNode) shade.parentNode.removeChild(shade)
+ }
+ shade.addEventListener("mousedown", function(e) {
+  if (e.target != shade) return
+  e.stopPropagation()
+  shut()
+ })
+ no.addEventListener("click", function(e) {
+  e.stopPropagation()
+  shut()
+ })
+ go.addEventListener("click", function(e) {
+  e.stopPropagation()
+  shut()
+  dropItem(id)
+ })
+}
 function dropItem(id) {
  var f = fileById(id)
  if (!f) return 0
- if (f.kind == "dir" && kidsOf(id).length) {
-  var path = document.getElementById("files-path")
-  if (path) path.textContent = "that folder still has stuff"
-  return 0
+ var gone = {}
+ function mark(pid, n) {
+  if (n > 24 || gone[String(pid)]) return
+  gone[String(pid)] = 1
+  var kids = kidsOf(pid)
+  var i
+  for (i = 0; i < kids.length; i++) mark(kids[i].id, n + 1)
  }
- var left = pullFiles().filter(function(it) { return String(it.id) != String(id) })
+ mark(id, 0)
+ var left = pullFiles().filter(function(it) { return !gone[String(it.id)] })
  stashFiles(left)
- if (String(padId) == String(id)) {
+ if (gone[String(padId)]) {
   padId = ""
   var box = document.getElementById("pad-box")
   var nm = document.getElementById("pad-name")
   if (box) box.value = ""
   if (nm) nm.value = ""
  }
- if (String(here) == String(id)) here = f.parent || ""
- if (String(termAt) == String(id)) {
+ if (gone[String(here)]) here = f.parent || ""
+ if (gone[String(termAt)]) {
   termAt = f.parent || ""
   var pr = document.getElementById("term-prompt")
   if (pr) pr.textContent = termPath() + ">"
@@ -3714,7 +4072,7 @@ document.getElementById("files-list").addEventListener("click", function(e) {
  var app = e.target.getAttribute && e.target.getAttribute("data-app")
  if (app) { termOpen(app); return }
  var del = e.target.getAttribute && e.target.getAttribute("data-del")
- if (del) { dropItem(del); return }
+ if (del) { askDrop(del); return }
  var id = e.target.getAttribute && e.target.getAttribute("data-id")
  if (!id) return
  var f = fileById(id)
@@ -3768,8 +4126,7 @@ function deskSlide(x, y) {
  if (!deskHold.moved) return
  deskHold.el.setAttribute("data-moved", "1")
  if (deskHold.el.className.indexOf(" go") == -1) deskHold.el.className += " go"
- var nx = x + 14
- var ny = y + 16
+ if (nx < 4) nx = 4
  if (ny < headH()) ny = headH()
  if (nx > window.innerWidth - 74) nx = window.innerWidth - 74
  if (ny > window.innerHeight - 64) ny = window.innerHeight - 64
@@ -3809,7 +4166,7 @@ function deskDrop(x, y) {
   hold.el.style.display = "none"
   var hit = document.elementFromPoint(x, y)
   var blocked = hit && hit.closest && hit.closest(".app-window, #taskbar, #pick, #deskmenu")
-  if (!blocked) did = parkOut(hold.id, x + 14, y + 16) ? 1 : 0
+  if (!blocked) did = parkOut(hold.id, hold.el.offsetLeft, hold.el.offsetTop) ? 1 : 0
  }
  if (!did && hold.moved && !hold.ghost) pinSpot(hold.id, hold.el.offsetLeft, hold.el.offsetTop)
  if (hold.ghost && hold.el.parentNode) hold.el.parentNode.removeChild(hold.el)
@@ -3835,7 +4192,12 @@ document.addEventListener("mousedown", function(e) {
  g.appendChild(mark)
  g.appendChild(lab)
  document.body.appendChild(g)
- deskHold = { el: g, id: row.getAttribute("data-id"), sx: e.clientX, sy: e.clientY, ox: 0, oy: 0, moved: 0, ghost: 1 }
+ var gx = e.clientX - 28
+ var gy = e.clientY - 18
+ g.style.left = gx + "px"
+ g.style.top = gy + "px"
+ g.style.bottom = "auto"
+ deskHold = { el: g, id: row.getAttribute("data-id"), sx: e.clientX, sy: e.clientY, ox: gx, oy: gy, moved: 0, ghost: 1 }
 })
 document.addEventListener("mousemove", function(e) {
  if (!deskHold) return
@@ -3867,6 +4229,7 @@ document.addEventListener("click", function(e) {
   deskSkip = 0
   return
  }
+ if (document.getElementById("nmbox")) return
  var hit = e.target.closest && e.target.closest(".dk")
  if (!hit) return
  var f = fileById(hit.getAttribute("data-desk"))

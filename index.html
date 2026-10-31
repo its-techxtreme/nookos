@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta charset="utf-8">
 <title>ColorfulNOOK OS</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="style.css">
@@ -40,7 +41,7 @@
 </div>
 <div class="app-icon" id="open-notes-tab">
 <svg viewBox="0 0 32 32"><path d="M8 6 H20 L26 12 V26 H8 Z" fill="none" stroke="#2a1810" stroke-width="2.4"/><path d="M20 6 V12 H26" fill="none" stroke="#2a1810" stroke-width="2.4"/></svg>
-<p>Notes</p>
+<p>Keep Notes</p>
 </div>
 <div class="app-icon" id="open-calculator-tab">
 <svg viewBox="0 0 32 32"><rect x="7" y="5" width="18" height="22" rx="2" fill="none" stroke="#2a1810" stroke-width="2.4"/><path d="M12 14 H20 M16 10 V18" stroke="#2a1810" stroke-width="2.4"/></svg>
@@ -78,6 +79,14 @@
 <svg viewBox="0 0 32 32"><rect x="4" y="7" width="24" height="18" rx="2" fill="none" stroke="#fff6d8" stroke-width="2.2"/><path d="M8 13 L13 16 L8 19 M15 20 H23" fill="none" stroke="#f0c230" stroke-width="2.2"/></svg>
 <p>Terminal</p>
 </div>
+<div class="app-icon" id="open-files-tab">
+<svg viewBox="0 0 32 32"><path d="M5 11 H13 L16 14 H27 V26 H5 Z" fill="none" stroke="#2a1810" stroke-width="2.2"/></svg>
+<p>Explorer</p>
+</div>
+<div class="app-icon" id="open-pad-tab">
+<svg viewBox="0 0 32 32"><path d="M8 5 H18 L24 11 V27 H8 Z" fill="none" stroke="#2a1810" stroke-width="2.2"/><path d="M11 16 H21 M11 20 H18" stroke="#2a1810" stroke-width="2"/></svg>
+<p>Notepad</p>
+</div>
 <div id="welcome" class="app-window welcome-window" style="top:78px;left:196px">
 <div id="welcomeheader" class="app-header">
 <p class="header-title">Welcome!</p>
@@ -103,7 +112,7 @@
 -->
 <div id="notes" class="app-window notes-window" style="display:none;top:78px;left:180px">
 <div id="notesheader" class="app-header">
-<p class="header-title">Notes</p>
+<p class="header-title">Keep Notes</p>
 <button type="button" id="close-notes-tab" class="close-button"></button>
 </div>
 <div id="notes-content">
@@ -112,7 +121,7 @@
 <div id="note-list"></div>
 </div>
 <div id="note-paper">
-<textarea id="note-body" placeholder="Write something"></textarea>
+<textarea id="note-body" placeholder="jot something"></textarea>
 <div id="note-tools">
 <button type="button" id="note-drop">Delete</button>
 </div>
@@ -323,10 +332,37 @@
 <div id="term-screen">
 <div id="term-log"></div>
 <form id="term-line">
-<span id="term-prompt">C:\ColorfulNOOK&gt;</span>
+<span id="term-prompt">C:\colorful-nookos&gt;</span>
 <input id="term-in" autocomplete="off" spellcheck="false">
 </form>
 </div>
+</div>
+<div id="files" class="app-window" style="display:none;top:96px;left:150px">
+<div id="filesheader" class="app-header">
+<p class="header-title">File Explorer</p>
+<button type="button" id="close-files-tab" class="close-button"></button>
+</div>
+<div id="files-bar">
+<button type="button" id="files-up">Up</button>
+<button type="button" id="files-newdir">New folder</button>
+<button type="button" id="files-newtxt">New text</button>
+<button type="button" id="files-newmd">New .md</button>
+</div>
+<p id="files-path">C:\colorful-nookos</p>
+<div id="files-list"></div>
+</div>
+<div id="pad" class="app-window" style="display:none;top:120px;left:210px">
+<div id="padheader" class="app-header">
+<p class="header-title">Notepad</p>
+<button type="button" id="close-pad-tab" class="close-button"></button>
+</div>
+<div id="pad-bar">
+<button type="button" id="pad-new">New</button>
+<button type="button" id="pad-save">Save</button>
+<button type="button" id="pad-down">Download</button>
+<input id="pad-name" spellcheck="false" placeholder="name.txt">
+</div>
+<textarea id="pad-box" spellcheck="false"></textarea>
 </div>
 <div id="anime" class="app-window" style="top:78px;left:260px;display:none">
 <div id="animeheader" class="app-header">
